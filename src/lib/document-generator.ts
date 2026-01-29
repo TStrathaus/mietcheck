@@ -54,12 +54,12 @@ export function generateHerabsetzungsbegehren(data: DocumentData): Uint8Array {
   y += 15;
   
   doc.setFontSize(12);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Betreff: Herabsetzungsbegehren des Nettomietzinses', 20, y);
   y += 10;
   
   // Main text
-  doc.setFont(undefined, 'normal');
+ doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   
   const lines = [
@@ -120,11 +120,11 @@ export function generateAnalysisReport(data: any): Uint8Array {
   const doc = new jsPDF();
   
   doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
+ doc.setFont('helvetica', 'bold');
   doc.text('Mietminderungs-Analyse', 20, 20);
   
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'bold');
   let y = 40;
   
   const lines = [
