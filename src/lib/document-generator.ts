@@ -113,8 +113,7 @@ export function generateHerabsetzungsbegehren(data: DocumentData): Uint8Array {
     y += 5;
   });
   
-  return doc.output('arraybuffer');
-}
+return new Uint8Array(doc.output('arraybuffer') as ArrayBuffer);}
 
 export function generateAnalysisReport(data: any): Uint8Array {
   const doc = new jsPDF();
@@ -152,5 +151,5 @@ export function generateAnalysisReport(data: any): Uint8Array {
     y += 7;
   });
   
-  return doc.output('arraybuffer');
+  return new Uint8Array(doc.output('arraybuffer') as ArrayBuffer);
 }
