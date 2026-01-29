@@ -50,7 +50,16 @@ export default function FileUpload({ onFileAnalyzed }: FileUploadProps) {
       }
 
       const data = await response.json()
-      onFileAnalyzed(data)
+      
+      if (data.success && data.extractedText) {
+        onFileAnalyzed({
+          extractedText: data.extractedText,
+          url: data.url,
+          fileName: data.fileName,
+        })
+      } else {
+        setError(data.error || 'Text konnte nicht extrahiert werden')
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
+import { extractTextFromPDF } from '@/lib/pdf-extractor'
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,20 +33,33 @@ export async function POST(request: NextRequest) {
       access: 'public',
     })
 
+    let extractedText = ''
     const fileType = file.type
-    let extractedData = null
 
     if (fileType === 'application/pdf') {
-      extractedData = { message: 'PDF-Analyse folgt in Phase 1.2' }
+      try {
+        extractedText = await extractTextFromPDF(blob.url)
+      } catch (error) {
+        return NextResponse.json({
+          success: false,
+          error: 'PDF-Textextraktion fehlgeschlagen. Bitte Daten manuell eingeben.',
+          url: blob.url,
+        })
+      }
     } else if (fileType.startsWith('image/')) {
-      extractedData = { message: 'Bild-Analyse folgt in Phase 1.2' }
+      return NextResponse.json({
+        success: false,
+        error: 'Bild-OCR noch nicht implementiert. Bitte Daten manuell eingeben.',
+        url: blob.url,
+      })
     }
 
     return NextResponse.json({
       success: true,
       url: blob.url,
       fileType,
-      extractedData,
+      fileName: file.name,
+      extractedText,
     })
   } catch (error: any) {
     console.error('Upload error:', error)
