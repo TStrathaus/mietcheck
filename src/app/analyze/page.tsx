@@ -4,24 +4,6 @@ import FileUpload from '@/components/FileUpload'
 import { useState } from 'react'
 import Link from 'next/link'
 
-<div className="mb-8">
-  <h3 className="text-lg font-semibold mb-4">
-    Option 1: Mietvertrag hochladen
-  </h3>
-  <FileUpload onFileAnalyzed={(data) => {
-    console.log('File analyzed:', data)
-    // TODO: Daten ins Formular übernehmen
-  }} />
-  
-  <div className="text-center my-6 text-gray-500">
-    oder
-  </div>
-  
-  <h3 className="text-lg font-semibold mb-4">
-    Option 2: Daten manuell eingeben
-  </h3>
-</div>
-
 export default function AnalyzePage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -38,8 +20,6 @@ export default function AnalyzePage() {
     setLoading(true)
 
     try {
-      // In production: Redirect to Stripe Checkout first
-      // For MVP: Direct calculation
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,13 +36,12 @@ export default function AnalyzePage() {
   }
 
   const handlePayment = async () => {
-    // Create Stripe Checkout session
     const response = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         service: 'analyze',
-        amount: 2000, // CHF 20.00 in Rappen
+        amount: 2000,
         email: formData.email,
         metadata: formData,
       }),
@@ -99,143 +78,32 @@ export default function AnalyzePage() {
             </div>
 
             {!result ? (
-              <form onSubmit={handleAnalyze} className="space-y-6">
-                <div>
-                  <label className="label">E-Mail *</label>
-                  <input
-                    type="email"
-                    required
-                    className="input"
-                    value={formData.email}
-                    onChange={e => setFormData({...formData, email: e.target.value})}
-                    placeholder="deine@email.ch"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Adresse der Mietwohnung *</label>
-                  <input
-                    type="text"
-                    required
-                    className="input"
-                    value={formData.address}
-                    onChange={e => setFormData({...formData, address: e.target.value})}
-                    placeholder="Musterstrasse 123, 8000 Zürich"
-                  />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="label">Aktuelle Nettomiete (CHF) *</label>
-                    <input
-                      type="number"
-                      required
-                      step="0.01"
-                      className="input"
-                      value={formData.netRent}
-                      onChange={e => setFormData({...formData, netRent: e.target.value})}
-                      placeholder="2000"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label">Referenzzinssatz bei Vertragsabschluss *</label>
-                    <select
-                      required
-                      className="input"
-                      value={formData.referenceRate}
-                      onChange={e => setFormData({...formData, referenceRate: e.target.value})}
-                    >
-                      <option value="">Bitte wählen</option>
-                      <option value="1.25">1.25%</option>
-                      <option value="1.50">1.50%</option>
-                      <option value="1.75">1.75%</option>
-                      <option value="2.00">2.00%</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="label">Datum Vertragsabschluss / letzte Anpassung *</label>
-                  <input
-                    type="date"
-                    required
-                    className="input"
-                    value={formData.contractDate}
-                    onChange={e => setFormData({...formData, contractDate: e.target.value})}
-                  />
-                </div>
-
-                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                  <p className="text-sm text-gray-700 font-semibold mb-2">
-                    Was du erhältst:
-                  </p>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    <li>✓ Exakte Berechnung deines Minderungsanspruchs</li>
-                    <li>✓ Detaillierter PDF-Report</li>
-                    <li>✓ Berücksichtigung von Teuerung & Kostensteigerung</li>
-                    <li>✓ Sofortiges Ergebnis</li>
-                  </ul>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handlePayment}
-                  className="btn btn-primary w-full text-lg"
-                >
-                  Jetzt für CHF 20 analysieren →
-                </button>
-              </form>
-            ) : (
-              <div className="space-y-6">
-                <div className="bg-green-50 border-2 border-green-500 p-6 rounded-lg">
-                  <h3 className="text-2xl font-bold text-green-800 mb-4">
-                    ✓ Analyse abgeschlossen!
+              <>
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold mb-4">
+                    Option 1: Mietvertrag hochladen
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-gray-600">Deine monatliche Ersparnis</div>
-                      <div className="text-4xl font-bold text-green-600">
-                        CHF {result.calculation.netReduction}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600">Jährliche Ersparnis</div>
-                      <div className="text-4xl font-bold text-green-600">
-                        CHF {result.calculation.yearlySavings}
-                      </div>
+                  <FileUpload onFileAnalyzed={(data) => {
+                    console.log('File analyzed:', data)
+                  }} />
+                  
+                  <div className="text-center my-8">
+                    <div className="inline-block bg-gray-200 px-4 py-2 rounded-full text-sm text-gray-600">
+                      oder
                     </div>
                   </div>
+                  
+                  <h3 className="text-lg font-semibold mb-4">
+                    Option 2: Daten manuell eingeben
+                  </h3>
                 </div>
 
-                <div>
-                  <h4 className="font-semibold mb-2">Berechnungsdetails:</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    {result.calculation.details.map((detail: string, i: number) => (
-                      <li key={i}>• {detail}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="border-t pt-6">
-                  <h4 className="font-semibold mb-4">Nächster Schritt:</h4>
-                  <p className="text-gray-700 mb-4">
-                    Möchtest du jetzt das fertige Herabsetzungsbegehren erstellen?
-                    Wir generieren dir ein rechtssicheres Dokument, das du sofort per Einschreiben
-                    an deinen Vermieter senden kannst.
-                  </p>
-                  <Link 
-                    href="/generate" 
-                    className="btn btn-primary inline-block"
-                  >
-                    Service 2: Dokument erstellen (CHF 50) →
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
-  )
-}
+                <form onSubmit={handleAnalyze} className="space-y-6">
+                  <div>
+                    <label className="label">E-Mail *</label>
+                    <input
+                      type="email"
+                      required
+                      className="input"
+                      value={formData.email}
+                      onChange={e => setForm
