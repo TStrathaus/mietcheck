@@ -1,7 +1,26 @@
 'use client'
 
+import FileUpload from '@/components/FileUpload'
 import { useState } from 'react'
 import Link from 'next/link'
+
+<div className="mb-8">
+  <h3 className="text-lg font-semibold mb-4">
+    Option 1: Mietvertrag hochladen
+  </h3>
+  <FileUpload onFileAnalyzed={(data) => {
+    console.log('File analyzed:', data)
+    // TODO: Daten ins Formular übernehmen
+  }} />
+  
+  <div className="text-center my-6 text-gray-500">
+    oder
+  </div>
+  
+  <h3 className="text-lg font-semibold mb-4">
+    Option 2: Daten manuell eingeben
+  </h3>
+</div>
 
 export default function AnalyzePage() {
   const [loading, setLoading] = useState(false)
