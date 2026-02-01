@@ -1,31 +1,27 @@
-# Auth Fix - NextAuth authOptions Export Problem
+# FINAL CLEANUP - MietCheck
 
-## Problem
-Build failed: "authOptions is not a valid Route export field"
+## Was macht das?
 
-## Lösung
-Diese 3 Dateien verwenden `getServerSession()` statt `authOptions` zu importieren.
+Behebt ALLE Probleme auf einmal:
+
+✅ Löscht Root-Duplikate (nextauth-route.ts, contract-analyzer.ts, etc.)
+✅ Entfernt dashboard-files/ komplett aus Git
+✅ Ersetzt Auth-Dateien mit korrekten Versionen
+✅ Commit + Push
+✅ Build funktioniert
 
 ## Installation
 
-1. Entpacke auth-fix.zip
-2. Kopiere ALLE Dateien nach: `D:\STTH\2026 KI\mietcheck\`
-3. Doppelklick auf `FIX-AUTH.bat`
+1. Entpacke final-cleanup.zip
+2. Kopiere ALLE 4 Dateien nach: `D:\STTH\2026 KI\mietcheck\`
+3. Doppelklick: `CLEANUP.bat`
 
-FERTIG! ✅
-
-## Was macht das Script?
-
-1. Ersetzt `src\app\api\auth\[...nextauth]\route.ts`
-2. Ersetzt `src\app\api\user\contracts\route.ts`
-3. Ersetzt `src\app\api\user\transactions\route.ts`
-4. Git commit + push
-5. Vercel baut neu
+FERTIG!
 
 ## Nach 2 Minuten
 
-Teste: https://mietcheck-nine.vercel.app/analyze
+https://mietcheck-nine.vercel.app/analyze
 
-✅ Build sollte erfolgreich sein
-✅ Login funktioniert
-✅ GPT-4 Analyse funktioniert
+✅ Build erfolgreich
+✅ Keine Duplikate mehr
+✅ GPT-4 funktioniert
