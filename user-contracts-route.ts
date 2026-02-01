@@ -1,17 +1,11 @@
 // src/app/api/user/contracts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { sql } from '@vercel/postgres';
 
-/**
- * GET /api/user/contracts
- * Fetches all contracts for the authenticated user
- */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -20,7 +14,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user's contracts from database
     const result = await sql`
       SELECT 
         id,
