@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
     console.log('✅ Analysis complete:', {
       address: result.address,
       netRent: result.netRent,
-      confidence: result.confidence
     });
 
     return NextResponse.json({
