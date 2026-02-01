@@ -1,4 +1,4 @@
-// src/lib/contract-analyzer.ts - Google Gemini mit v1 API (NICHT v1beta)
+// src/lib/contract-analyzer.ts - Google Gemini 2.5 Flash
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ContractData {
@@ -17,10 +17,9 @@ export async function analyzeContract(contractText: string): Promise<ContractDat
     throw new Error('GEMINI_API_KEY nicht konfiguriert');
   }
 
-  // Force v1 API by using explicit fetch with v1 endpoint
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = 'gemini-pro';
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+  const model = 'models/gemini-2.5-flash';
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
 
   const prompt = `Analysiere diesen Schweizer Mietvertrag und extrahiere folgende Informationen im JSON-Format:
 
@@ -51,9 +50,8 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
 }`;
 
   try {
-    console.log('🤖 Sending to Gemini Pro (v1 API)...');
+    console.log('🤖 Sending to Gemini 2.5 Flash...');
     
-    // Direct fetch to v1 API (bypass SDK's v1beta default)
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
