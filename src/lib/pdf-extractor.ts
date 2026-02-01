@@ -7,7 +7,7 @@ export async function extractTextFromPDF(fileUrl: string): Promise<string> {
     const buffer = Buffer.from(arrayBuffer);
 
     // Use pdf-parse for server-side extraction
-    const pdfParse = (await import('pdf-parse')).default;
+    const pdfParse = (await import('pdf-parse'));
     const data = await pdfParse(buffer);
 
     const text = data.text.trim();
