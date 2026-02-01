@@ -1,7 +1,8 @@
-// src/components/FileUpload.tsx (Enhanced Version)
+// src/components/FileUpload.tsx - Client-Side Upload Version
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { upload } from '@vercel/blob/client';
 import { ContractData } from '@/lib/contract-analyzer';
 
 interface FileUploadProps {
@@ -61,7 +62,7 @@ export default function FileUpload({ onAnalysisComplete }: FileUploadProps) {
     setFile(selectedFile);
   };
 
-  // Upload and analyze file
+  // Upload and analyze file (CLIENT-SIDE UPLOAD - NO 4.5MB LIMIT!)
   const handleUpload = async () => {
     if (!file) return;
 
@@ -69,49 +70,61 @@ export default function FileUpload({ onAnalysisComplete }: FileUploadProps) {
     setError(null);
 
     try {
-      // Step 1: Upload file
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const uploadResponse = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      // Step 1: Upload directly to Vercel Blob (client-side, no 4.5MB limit!)
+      console.log('📤 Uploading to Vercel Blob...');
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload-url',
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error('Upload fehlgeschlagen');
+      setUploadSuccess(true);
+      console.log('✅ Upload successful:', blob.url);
+
+      // Step 2: Extract text from uploaded blob
+      console.log('📄 Extracting text from PDF...');
+      const processResponse = await fetch('/api/process-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          blobUrl: blob.url,
+          fileType: file.type 
+        }),
+      });
+
+      if (!processResponse.ok) {
+        throw new Error('Textextraktion fehlgeschlagen');
       }
 
-      const uploadData = await uploadResponse.json();
-      setUploadSuccess(true);
-      setExtractedText(uploadData.extractedText || '');
+      const processData = await processResponse.json();
+      
+      if (!processData.success) {
+        throw new Error(processData.error);
+      }
 
-      console.log('✅ Upload successful');
-      console.log('📄 Extracted text length:', uploadData.extractedText?.length || 0);
+      setExtractedText(processData.extractedText || '');
+      console.log('📄 Extracted text length:', processData.extractedText?.length || 0);
 
-      // Step 2: Analyze contract with GPT-4
-      if (uploadData.extractedText && uploadData.extractedText.length > 50) {
+      // Step 3: Analyze contract with Gemini
+      if (processData.extractedText && processData.extractedText.length > 50) {
         setAnalyzing(true);
+        console.log('🤖 Analyzing with Gemini...');
         
         const analysisResponse = await fetch('/api/analyze-contract', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            extractedText: uploadData.extractedText,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ extractedText: processData.extractedText }),
         });
 
-        const analysisData = await analysisResponse.json();
+        if (!analysisResponse.ok) {
+          throw new Error('Analyse fehlgeschlagen');
+        }
 
+        const analysisData = await analysisResponse.json();
+        
         if (analysisData.success && analysisData.data) {
           console.log('✅ Analysis successful');
-          console.log('📊 Contract data:', analysisData.data);
-          
           setAnalysisResult(analysisData.data);
           
-          // Notify parent component
           if (onAnalysisComplete) {
             onAnalysisComplete(analysisData.data);
           }
@@ -226,7 +239,7 @@ export default function FileUpload({ onAnalysisComplete }: FileUploadProps) {
           <div className="flex items-center space-x-3">
             <div className="animate-spin h-5 w-5 border-2 border-blue-600 rounded-full border-t-transparent"></div>
             <p className="text-blue-800 font-medium">
-              🤖 GPT-4 analysiert Ihren Vertrag...
+              🤖 Gemini analysiert Ihren Vertrag...
             </p>
           </div>
           <p className="text-sm text-blue-600 mt-2">
@@ -274,9 +287,7 @@ export default function FileUpload({ onAnalysisComplete }: FileUploadProps) {
             </div>
             <div>
               <p className="text-sm text-gray-600">📅 Vertragsdatum</p>
-              <p className="font-medium text-gray-900">
-                {new Date(analysisResult.contractDate).toLocaleDateString('de-CH')}
-              </p>
+              <p className="font-medium text-gray-900">{analysisResult.contractDate}</p>
             </div>
             <div className="md:col-span-2">
               <p className="text-sm text-gray-600">🏢 Vermieter</p>
