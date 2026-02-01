@@ -12,7 +12,8 @@ export async function POST(request: Request): Promise<Response> {
         // Validate file type and size before generating upload token
         return {
           allowedContentTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-          maximumSizeInBytes: 10 * 1024 * 1024, // 10 MB
+maximumSizeInBytes: 10 * 1024 * 1024, // 10 MB
+addRandomSuffix: true,
         };
       },
       onUploadCompleted: async ({ blob }) => {
