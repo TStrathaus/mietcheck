@@ -30,7 +30,7 @@ Extrahiere:
 1. address: Vollständige Adresse der Mietwohnung (Strasse, PLZ, Ort)
 2. netRent: Nettomiete pro Monat in CHF (nur die Zahl, ohne "CHF" oder Währung)
 3. referenceRate: Referenzzinssatz in Prozent (z.B. 1.5 für 1.5%)
-4. contractDate: Vertragsdatum im Format DD.MM.YYYY
+4. contractDate: Vertragsdatum im Format YYYY-MM-DD
 5. landlordName: Name des Vermieters
 6. landlordAddress: Adresse des Vermieters
 7. confidence: Bewertung der Datenqualität ("high", "medium", oder "low")
