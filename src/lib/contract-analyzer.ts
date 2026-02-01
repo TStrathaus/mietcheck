@@ -1,4 +1,4 @@
-// src/lib/contract-analyzer.ts - Google Gemini Version
+// src/lib/contract-analyzer.ts - Google Gemini Version (STABLE)
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ContractData {
@@ -18,7 +18,15 @@ export async function analyzeContract(contractText: string): Promise<ContractDat
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  
+  // Use gemini-pro (stable, guaranteed to work)
+  const model = genAI.getGenerativeModel({ 
+    model: 'gemini-pro',
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 2048,
+    }
+  });
 
   const prompt = `Analysiere diesen Schweizer Mietvertrag und extrahiere folgende Informationen im JSON-Format:
 
@@ -49,7 +57,7 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
 }`;
 
   try {
-    console.log('🤖 Sending to Gemini 1.5 Flash...');
+    console.log('🤖 Sending to Gemini Pro (stable)...');
     
     const result = await model.generateContent(prompt);
     const response = await result.response;
