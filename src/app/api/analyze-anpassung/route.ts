@@ -1,22 +1,13 @@
-// src/app/api/analyze-anpassung/route.ts (Updated with OCR support)
+// src/app/api/analyze-anpassung/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTextFromPDF } from '@/lib/pdf-extractor';
-import { extractTextFromImage, isImageType, isPDFType } from '@/lib/image-ocr';
 
 export async function POST(request: NextRequest) {
   try {
-    const { blobUrl, fileType } = await request.json();
+    const { blobUrl } = await request.json();
     
     if (!blobUrl) {
       return NextResponse.json(
         { error: 'Blob URL fehlt' },
-        { status: 400 }
-      );
-    }
-
-    if (!fileType) {
-      return NextResponse.json(
-        { error: 'File type fehlt' },
         { status: 400 }
       );
     }
@@ -29,34 +20,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📄 Analyzing rent adjustment document:', { blobUrl, fileType });
+    // Extract text from PDF
+    const { extractTextFromPDF } = await import('@/lib/pdf-extractor');
+    const extractedText = await extractTextFromPDF(blobUrl);
 
-    // Extract text based on file type
-    let extractedText: string;
+    console.log('📄 Analyzing rent adjustment document...');
+    console.log('📄 Text length:', extractedText.length);
 
-    if (isPDFType(fileType)) {
-      console.log('📑 Extracting from PDF...');
-      extractedText = await extractTextFromPDF(blobUrl);
-    } else if (isImageType(fileType)) {
-      console.log('🖼️ Extracting from Image with OCR...');
-      extractedText = await extractTextFromImage(blobUrl, fileType);
-    } else {
-      return NextResponse.json(
-        { error: `Nicht unterstützter Dateityp: ${fileType}` },
-        { status: 400 }
-      );
-    }
-
-    if (!extractedText || extractedText.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Kein Text konnte extrahiert werden' },
-        { status: 400 }
-      );
-    }
-
-    console.log('📄 Text extracted, length:', extractedText.length);
-
-    // Analyze with Gemini
+    // Gemini API call
     const model = 'models/gemini-2.5-flash';
     const apiUrl = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
 
