@@ -17,14 +17,14 @@ export async function extractTextFromPDF(fileUrl: string): Promise<string> {
     console.log('📦 PDF size:', arrayBuffer.byteLength, 'bytes');
 
     // Extract text with unpdf
-    const { text, pages } = await extractText(arrayBuffer, {
+    const { text, totalPages  } = await extractText(arrayBuffer, {
       mergePages: true,
     });
 
     const cleanText = text.trim();
     
     console.log('📄 PDF extraction successful:', {
-      pages: pages?.length || 0,
+      pages: totalPages || 0,
       textLength: cleanText.length,
       preview: cleanText.substring(0, 150) + '...'
     });
