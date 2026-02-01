@@ -1,12 +1,6 @@
-// src/lib/contract-analyzer.ts
-import OpenAI from 'openai';
+// src/lib/contract-analyzer.ts - Google Gemini Version
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Contract data interface
 export interface ContractData {
   address: string;
   netRent: number;
@@ -15,193 +9,86 @@ export interface ContractData {
   landlordName: string;
   landlordAddress: string;
   confidence: 'high' | 'medium' | 'low';
-  extractedFields: string[];
   missingFields: string[];
 }
 
-// Analysis result interface
-export interface AnalysisResult {
-  success: boolean;
-  data?: ContractData;
-  error?: string;
-  rawResponse?: string;
-}
+export async function analyzeContract(contractText: string): Promise<ContractData> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY nicht konfiguriert');
+  }
 
-/**
- * Analyzes Swiss rental contract text using GPT-4
- * Extracts key contract information for rent reduction calculations
- */
-export async function analyzeContract(
-  extractedText: string
-): Promise<AnalysisResult> {
-  try {
-    // Validate input
-    if (!extractedText || extractedText.trim().length < 50) {
-      return {
-        success: false,
-        error: 'Text zu kurz oder leer. Bitte laden Sie einen vollständigen Mietvertrag hoch.',
-      };
-    }
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    // Check if API key is configured
-    if (!process.env.OPENAI_API_KEY) {
-      return {
-        success: false,
-        error: 'OpenAI API Key nicht konfiguriert.',
-      };
-    }
+  const prompt = `Analysiere diesen Schweizer Mietvertrag und extrahiere folgende Informationen im JSON-Format:
 
-    // Call OpenAI API with structured output request
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `Du bist ein Experte für Schweizer Mietverträge. Analysiere den folgenden Vertragstext und extrahiere die relevanten Informationen.
+MIETVERTRAG TEXT:
+${contractText}
 
-WICHTIG: Antworte NUR mit einem validen JSON-Objekt ohne zusätzlichen Text.
+Extrahiere:
+1. address: Vollständige Adresse der Mietwohnung (Strasse, PLZ, Ort)
+2. netRent: Nettomiete pro Monat in CHF (nur die Zahl, ohne "CHF" oder Währung)
+3. referenceRate: Referenzzinssatz in Prozent (z.B. 1.5 für 1.5%)
+4. contractDate: Vertragsdatum im Format DD.MM.YYYY
+5. landlordName: Name des Vermieters
+6. landlordAddress: Adresse des Vermieters
+7. confidence: Bewertung der Datenqualität ("high", "medium", oder "low")
+8. missingFields: Array mit fehlenden Feldern
 
-Das JSON-Format MUSS genau so aussehen:
+Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
+
 {
-  "address": "Strasse Nr., PLZ Ort",
-  "netRent": 2000.00,
-  "referenceRate": 1.50,
-  "contractDate": "YYYY-MM-DD",
-  "landlordName": "Name des Vermieters",
-  "landlordAddress": "Vermieteradresse",
-  "confidence": "high|medium|low",
-  "extractedFields": ["field1", "field2"],
-  "missingFields": ["field3"]
-}
+  "address": "...",
+  "netRent": 0,
+  "referenceRate": 0,
+  "contractDate": "...",
+  "landlordName": "...",
+  "landlordAddress": "...",
+  "confidence": "high",
+  "missingFields": []
+}`;
 
-FELD-DEFINITIONEN:
-- address: Die Adresse der Mietwohnung (NICHT die Vermieteradresse)
-- netRent: Nettomiete in CHF (Grundmiete ohne Nebenkosten)
-- referenceRate: Hypothekarischer Referenzzinssatz bei Vertragsabschluss (z.B. 1.50 für 1.50%)
-- contractDate: Datum des Vertragsbeginns im Format YYYY-MM-DD
-- landlordName: Name des Vermieters / der Vermieterin
-- landlordAddress: Vollständige Adresse des Vermieters
-- confidence: "high" wenn alle Felder klar, "medium" bei Unsicherheiten, "low" wenn viel fehlt
-- extractedFields: Array der erfolgreich extrahierten Felder
-- missingFields: Array der nicht gefundenen Felder
+  try {
+    console.log('🤖 Sending to Gemini 1.5 Flash...');
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-BESONDERE HINWEISE:
-- Wenn der Referenzzinssatz nicht explizit genannt wird, nutze historische Daten (1.25% vor 2022, 1.50% 2022-2023, 1.75% 2023-2025)
-- Bei fehlenden Werten verwende null statt 0
-- Nettomiete ist OHNE Nebenkosten (suche nach "Grundmiete", "Nettomietzins")
-- Achte auf Schweizer Datumsformate (DD.MM.YYYY oder DD/MM/YYYY)`,
-        },
-        {
-          role: 'user',
-          content: `Analysiere diesen Mietvertrag:\n\n${extractedText}`,
-        },
-      ],
-      temperature: 0.1, // Low temperature for consistent extraction
-      max_tokens: 1000,
+    console.log('📥 Gemini response received:', text.substring(0, 200));
+
+    // Extract JSON from response (remove markdown code blocks if present)
+    let jsonText = text.trim();
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+
+    const data = JSON.parse(jsonText);
+
+    // Validate required fields
+    const validatedData: ContractData = {
+      address: data.address || '',
+      netRent: parseFloat(data.netRent) || 0,
+      referenceRate: parseFloat(data.referenceRate) || 0,
+      contractDate: data.contractDate || '',
+      landlordName: data.landlordName || '',
+      landlordAddress: data.landlordAddress || '',
+      confidence: data.confidence || 'low',
+      missingFields: data.missingFields || [],
+    };
+
+    console.log('✅ Contract analysis successful:', {
+      address: validatedData.address,
+      netRent: validatedData.netRent,
+      confidence: validatedData.confidence,
     });
 
-    // Extract response
-    const responseText = completion.choices[0]?.message?.content;
+    return validatedData;
 
-    if (!responseText) {
-      return {
-        success: false,
-        error: 'Keine Antwort von OpenAI erhalten.',
-      };
-    }
-
-    // Parse JSON response
-    let parsedData: ContractData;
-    try {
-      // Remove potential markdown code blocks
-      const cleanedResponse = responseText
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      
-      parsedData = JSON.parse(cleanedResponse);
-    } catch (parseError) {
-      console.error('JSON Parse Error:', parseError);
-      return {
-        success: false,
-        error: 'Antwort konnte nicht verarbeitet werden.',
-        rawResponse: responseText,
-      };
-    }
-
-    // Validate extracted data
-    const validation = validateContractData(parsedData);
-    if (!validation.valid) {
-      return {
-        success: false,
-        error: validation.error,
-        data: parsedData,
-      };
-    }
-
-    return {
-      success: true,
-      data: parsedData,
-      rawResponse: responseText,
-    };
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: `Fehler bei der Analyse: ${error.message}`,
-      };
-    }
-    
-    return {
-      success: false,
-      error: 'Unbekannter Fehler bei der Vertragsanalyse.',
-    };
+  } catch (error: any) {
+    console.error('❌ Gemini analysis error:', error);
+    throw new Error(`Vertragsanalyse fehlgeschlagen: ${error.message}`);
   }
-}
-
-/**
- * Validates extracted contract data
- */
-function validateContractData(data: any): { valid: boolean; error?: string } {
-  // Check required fields
-  if (!data.address || data.address === null) {
-    return { valid: false, error: 'Adresse konnte nicht extrahiert werden.' };
-  }
-
-  if (!data.netRent || data.netRent <= 0) {
-    return { valid: false, error: 'Nettomiete konnte nicht extrahiert werden.' };
-  }
-
-  if (!data.referenceRate || data.referenceRate < 0 || data.referenceRate > 5) {
-    return { valid: false, error: 'Referenzzinssatz ungültig oder nicht gefunden.' };
-  }
-
-  if (!data.contractDate) {
-    return { valid: false, error: 'Vertragsdatum konnte nicht extrahiert werden.' };
-  }
-
-  // Validate date format
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(data.contractDate)) {
-    return { valid: false, error: 'Vertragsdatum hat ungültiges Format.' };
-  }
-
-  return { valid: true };
-}
-
-/**
- * Formats contract data for display
- */
-export function formatContractData(data: ContractData): string {
-  return `
-📍 Adresse: ${data.address}
-💰 Nettomiete: CHF ${data.netRent.toFixed(2)}
-📊 Referenzzinssatz: ${data.referenceRate}%
-📅 Vertragsdatum: ${new Date(data.contractDate).toLocaleDateString('de-CH')}
-🏢 Vermieter: ${data.landlordName}
-📬 Vermieteradresse: ${data.landlordAddress}
-✅ Konfidenz: ${data.confidence}
-  `.trim();
 }
