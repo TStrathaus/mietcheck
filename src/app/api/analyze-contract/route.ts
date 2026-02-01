@@ -2,82 +2,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeContract } from '@/lib/contract-analyzer';
 
-/**
- * POST /api/analyze-contract
- * Analyzes rental contract text using GPT-4
- * 
- * Request body:
- * {
- *   "extractedText": "full contract text..."
- * }
- * 
- * Response:
- * {
- *   "success": true,
- *   "data": { ContractData },
- *   "error": "error message" (if failed)
- * }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
     const body = await request.json();
     const { extractedText } = body;
 
-    // Validate input
-    if (!extractedText || typeof extractedText !== 'string') {
+    if (!extractedText || extractedText.length < 50) {
       return NextResponse.json(
-        {
+        { 
           success: false,
-          error: 'Kein Text zur Analyse bereitgestellt.',
+          error: 'Text zu kurz für Analyse' 
         },
         { status: 400 }
       );
     }
 
-    // Check text length
-    if (extractedText.trim().length < 50) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Text zu kurz. Bitte laden Sie einen vollständigen Mietvertrag hoch.',
-        },
-        { status: 400 }
-      );
-    }
+    console.log('📝 Starting contract analysis...');
+    console.log('📄 Text length:', extractedText.length);
 
-    // Analyze contract using GPT-4
-    console.log('🔍 Analyzing contract with GPT-4...');
+    // Analyze with Gemini
     const result = await analyzeContract(extractedText);
 
-    if (!result.success) {
-      console.error('❌ Analysis failed:', result.error);
-      return NextResponse.json(result, { status: 422 });
-    }
+    console.log('✅ Analysis complete:', {
+      address: result.address,
+      netRent: result.netRent,
+      confidence: result.confidence
+    });
 
-    console.log('✅ Contract analysis successful');
-    console.log('📊 Extracted data:', result.data);
+    return NextResponse.json({
+      success: true,
+      data: result,
+    });
 
-    // Return successful result
-    return NextResponse.json(result, { status: 200 });
-
-  } catch (error) {
-    console.error('❌ API Error in /api/analyze-contract:', error);
+  } catch (error: any) {
+    console.error('❌ Analysis error:', error);
     
     return NextResponse.json(
       {
         success: false,
-        error: 'Serverfehler bei der Vertragsanalyse.',
+        error: error.message || 'Analyse fehlgeschlagen',
       },
       { status: 500 }
     );
   }
-}
-
-// Only allow POST requests
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
 }
