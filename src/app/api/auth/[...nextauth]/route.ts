@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { sql } from '@vercel/postgres';
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Find user in database
           const result = await sql`
             SELECT id, email, password_hash, name, created_at
             FROM users
@@ -31,7 +30,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Kein Benutzer mit dieser Email gefunden');
           }
 
-          // Verify password
           const isValidPassword = await bcrypt.compare(
             credentials.password,
             user.password_hash
@@ -41,7 +39,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Falsches Passwort');
           }
 
-          // Return user object
           return {
             id: user.id.toString(),
             email: user.email,
@@ -75,10 +72,10 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST, authOptions };
+export { handler as GET, handler as POST };
