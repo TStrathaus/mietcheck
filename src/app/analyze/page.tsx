@@ -1,10 +1,12 @@
-// src/app/analyze/page.tsx (Enhanced Version)
+// src/app/analyze/page.tsx (Enhanced Version with MietHistorie)
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import FileUpload from '@/components/FileUpload';
+import MietHistorie from '@/components/MietHistorie';
 import { ContractData } from '@/lib/contract-analyzer';
+import { MietHistorie as MietHistorieType } from '@/lib/miet-calculator';
 
 export default function AnalyzePage() {
   const [formData, setFormData] = useState({
@@ -14,6 +16,8 @@ export default function AnalyzePage() {
     contractDate: '',
   });
 
+  const [mietHistorie, setMietHistorie] = useState<MietHistorieType | null>(null);
+  const [showHistorie, setShowHistorie] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +25,7 @@ export default function AnalyzePage() {
   // Handle analysis completion from FileUpload
   const handleAnalysisComplete = (data: ContractData) => {
     console.log('📊 Auto-filling form with analyzed data:', data);
-    
+
     // Auto-fill form fields
     setFormData({
       address: data.address,
@@ -30,7 +34,8 @@ export default function AnalyzePage() {
       contractDate: data.contractDate,
     });
 
-    // Show success notification
+    // Show MietHistorie component
+    setShowHistorie(true);
     setError(null);
   };
 
@@ -40,6 +45,11 @@ export default function AnalyzePage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Handle MietHistorie changes
+  const handleHistorieChange = (historie: MietHistorieType) => {
+    setMietHistorie(historie);
   };
 
   // Submit calculation
@@ -59,8 +69,9 @@ export default function AnalyzePage() {
           address: formData.address,
           currentRent: parseFloat(formData.netRent),
           currentReferenceRate: parseFloat(formData.currentRate),
-          newReferenceRate: 1.25, // Current rate (2025-09-02)
+          newReferenceRate: 1.25, // Current rate (2026-02-01)
           contractDate: formData.contractDate,
+          mietHistorie: mietHistorie, // Include history if available
         }),
       });
 
@@ -119,12 +130,12 @@ export default function AnalyzePage() {
         </div>
 
         {/* Manual Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             ✏️ Vertragsdaten {formData.address && '(automatisch ausgefüllt)'}
           </h2>
           <p className="text-gray-600 mb-6">
-            {formData.address 
+            {formData.address
               ? 'Bitte überprüfen Sie die automatisch ausgefüllten Daten und korrigieren Sie sie bei Bedarf.'
               : 'Oder geben Sie die Daten manuell ein, falls Sie keinen Vertrag hochladen möchten.'}
           </p>
@@ -224,7 +235,7 @@ export default function AnalyzePage() {
               <h3 className="text-2xl font-bold text-green-900 mb-4">
                 🎉 Ihr Einsparungspotential
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white rounded-lg p-4">
                   <p className="text-sm text-gray-600">Aktuelle Miete</p>
@@ -232,21 +243,21 @@ export default function AnalyzePage() {
                     CHF {result.currentRent.toFixed(2)}
                   </p>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-4">
                   <p className="text-sm text-gray-600">Neue Miete</p>
                   <p className="text-2xl font-bold text-green-600">
                     CHF {result.newRent.toFixed(2)}
                   </p>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-4">
                   <p className="text-sm text-gray-600">Monatliche Reduktion</p>
                   <p className="text-2xl font-bold text-blue-600">
                     CHF {result.monthlyReduction.toFixed(2)}
                   </p>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-4">
                   <p className="text-sm text-gray-600">Jährliche Einsparung</p>
                   <p className="text-2xl font-bold text-blue-600">
@@ -272,6 +283,20 @@ export default function AnalyzePage() {
           )}
         </div>
 
+        {/* MietHistorie Section */}
+        {showHistorie && formData.contractDate && formData.netRent && formData.currentRate && (
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <MietHistorie
+              vertragsbeginn={{
+                datum: formData.contractDate,
+                miete: parseFloat(formData.netRent),
+                referenzzinssatz: parseFloat(formData.currentRate),
+              }}
+              onHistorieChange={handleHistorieChange}
+            />
+          </div>
+        )}
+
         {/* Info Box */}
         <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-3">
@@ -289,6 +314,9 @@ export default function AnalyzePage() {
             </li>
             <li>
               • Die KI-Analyse ist ein Hilfsmittel - bitte prüfen Sie die Daten
+            </li>
+            <li>
+              • <strong>NEU:</strong> Erfassen Sie alle bisherigen Mietanpassungen für eine präzisere Berechnung
             </li>
           </ul>
         </div>
