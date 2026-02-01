@@ -1,15 +1,22 @@
-// src/app/api/analyze/route.ts
+// src/app/api/analyze/route.ts (Updated with MietHistorie support)
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  MietHistorie,
+  validateMietHistorie,
+  berechneMiete,
+  berechneEinsparung,
+} from '@/lib/miet-calculator';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      address, 
-      currentRent, 
-      currentReferenceRate, 
-      newReferenceRate, 
-      contractDate 
+    const {
+      address,
+      currentRent,
+      currentReferenceRate,
+      newReferenceRate,
+      contractDate,
+      mietHistorie,
     } = body;
 
     // Validate inputs
@@ -20,10 +27,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate rent reduction based on reference rate change
-    // Formula: New Rent = Current Rent * (1 + (New Rate - Current Rate) / 100 * 0.03)
-    // Swiss rent law allows 3% change per 0.25% reference rate change
-    
+    // If MietHistorie is provided, use it for more accurate calculation
+    if (mietHistorie) {
+      console.log('📊 Calculating with MietHistorie:', mietHistorie);
+
+      // Validate history
+      const validation = validateMietHistorie(mietHistorie as MietHistorie);
+
+      if (!validation.isValid) {
+        return NextResponse.json({
+          error: 'Miethistorie enthält Fehler',
+          validationErrors: validation.errors,
+        }, { status: 400 });
+      }
+
+      // Use validated data from history
+      const aktuelleAnpassung = mietHistorie.aktuell;
+      const sollMiete = berechneMiete(
+        aktuelleAnpassung.miete,
+        aktuelleAnpassung.referenzzinssatz,
+        newReferenceRate
+      );
+
+      const monthlyReduction = aktuelleAnpassung.miete - sollMiete;
+      const yearlySavings = monthlyReduction * 12;
+
+      // Calculate total savings since reference rate dropped
+      let einsparungDetails = null;
+      if (validation.sollMiete && validation.istMiete) {
+        einsparungDetails = berechneEinsparung(
+          validation.sollMiete,
+          validation.istMiete,
+          aktuelleAnpassung.datum
+        );
+      }
+
+      return NextResponse.json({
+        currentRent: aktuelleAnpassung.miete,
+        newRent: sollMiete,
+        monthlyReduction,
+        yearlySavings,
+        validation: {
+          warnings: validation.warnings,
+          errors: validation.errors,
+        },
+        einsparungDetails,
+        hasHistory: true,
+      });
+    }
+
+    // Fallback: Simple calculation without history
+    console.log('📊 Simple calculation without history');
+
     const rateDifference = newReferenceRate - currentReferenceRate;
     const percentageChange = (rateDifference / 0.25) * 3; // 3% per 0.25% rate change
     const newRent = currentRent * (1 + percentageChange / 100);
@@ -47,6 +102,7 @@ export async function POST(request: NextRequest) {
       yearlySavings,
       rateDifference,
       percentageChange,
+      hasHistory: false,
     });
 
   } catch (error: any) {
