@@ -1,29 +1,74 @@
+// src/app/generate/page.tsx - With auto-fill from Service 1
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { splitAddress } from '@/lib/address-helper'
 
 export default function GeneratePage() {
   const [loading, setLoading] = useState(false)
   const [pdfUrl, setPdfUrl] = useState('')
+  const [autoFilled, setAutoFilled] = useState(false)
+  
   const [formData, setFormData] = useState({
     // Tenant
     email: '',
     tenantName: '',
     tenantAddress: '',
     tenantCity: '',
-    
+
     // Contract
     propertyAddress: '',
     netRent: '',
+    newRent: '', // NEU - berechnete Sollmiete
+    monthlyReduction: '', // NEU - monatliche Einsparung
     referenceRate: '',
     contractDate: '',
-    
+
     // Landlord
     landlordName: '',
     landlordAddress: '',
     landlordCity: '',
   })
+
+  // Auto-fill from sessionStorage (Service 1 data)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const savedData = sessionStorage.getItem('mietCheckData')
+      
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData)
+          console.log('📥 Loading data from Service 1:', data)
+          
+          // Split landlord address
+          const landlord = splitAddress(data.contract?.landlordAddress || '')
+          
+          setFormData(prev => ({
+            ...prev,
+            // Property
+            propertyAddress: data.contract?.address || '',
+            netRent: data.contract?.netRent?.toString() || '',
+            newRent: data.calculation?.newRent?.toFixed(2) || '',
+            monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
+            referenceRate: data.contract?.referenceRate?.toString() || '',
+            contractDate: data.contract?.contractDate || '',
+            
+            // Landlord
+            landlordName: data.contract?.landlordName || '',
+            landlordAddress: landlord.street,
+            landlordCity: landlord.city,
+          }))
+          
+          setAutoFilled(true)
+          console.log('✅ Auto-filled form from Service 1')
+          
+        } catch (error) {
+          console.error('❌ Error loading Service 1 data:', error)
+        }
+      }
+    }
+  }, [])
 
   const handlePayment = async () => {
     const response = await fetch('/api/create-checkout', {
@@ -81,6 +126,11 @@ export default function GeneratePage() {
                 <p className="text-gray-600">
                   Rechtssicheres Herabsetzungsbegehren - fertig zum Versand
                 </p>
+                {autoFilled && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✓ Daten automatisch aus Service 1 übernommen
+                  </p>
+                )}
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-primary">CHF 50</div>
@@ -96,7 +146,7 @@ export default function GeneratePage() {
                     <span className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-2">1</span>
                     Deine Daten
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="label">E-Mail *</label>
@@ -153,8 +203,11 @@ export default function GeneratePage() {
                   <h3 className="text-lg font-semibold mb-4 flex items-center">
                     <span className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-2">2</span>
                     Mietvertrag
+                    {autoFilled && (
+                      <span className="ml-2 text-sm text-green-600">(automatisch ausgefüllt)</span>
+                    )}
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="label">Adresse der Mietwohnung *</label>
@@ -168,9 +221,9 @@ export default function GeneratePage() {
                       />
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-4 gap-4">
                       <div>
-                        <label className="label">Nettomiete (CHF) *</label>
+                        <label className="label">Aktuelle Miete (CHF) *</label>
                         <input
                           type="number"
                           required
@@ -183,6 +236,20 @@ export default function GeneratePage() {
                       </div>
 
                       <div>
+                        <label className="label">Neue Miete (CHF) *</label>
+                        <input
+                          type="number"
+                          required
+                          step="0.01"
+                          className="input bg-green-50"
+                          value={formData.newRent}
+                          onChange={e => setFormData({...formData, newRent: e.target.value})}
+                          placeholder="1900"
+                        />
+                        <p className="text-xs text-green-600 mt-1">Berechnete Sollmiete</p>
+                      </div>
+
+                      <div>
                         <label className="label">Referenzzinssatz *</label>
                         <select
                           required
@@ -191,8 +258,10 @@ export default function GeneratePage() {
                           onChange={e => setFormData({...formData, referenceRate: e.target.value})}
                         >
                           <option value="">Wählen</option>
+                          <option value="1.25">1.25%</option>
                           <option value="1.50">1.50%</option>
                           <option value="1.75">1.75%</option>
+                          <option value="2.00">2.00%</option>
                         </select>
                       </div>
 
@@ -207,6 +276,17 @@ export default function GeneratePage() {
                         />
                       </div>
                     </div>
+
+                    {formData.monthlyReduction && parseFloat(formData.monthlyReduction) > 0 && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p className="text-sm font-medium text-green-800">
+                          💰 Monatliche Einsparung: CHF {parseFloat(formData.monthlyReduction).toFixed(2)}
+                        </p>
+                        <p className="text-sm text-green-600">
+                          Jährlich: CHF {(parseFloat(formData.monthlyReduction) * 12).toFixed(2)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -215,8 +295,11 @@ export default function GeneratePage() {
                   <h3 className="text-lg font-semibold mb-4 flex items-center">
                     <span className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-2">3</span>
                     Vermieter
+                    {autoFilled && (
+                      <span className="ml-2 text-sm text-green-600">(automatisch ausgefüllt)</span>
+                    )}
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="label">Name des Vermieters *</label>

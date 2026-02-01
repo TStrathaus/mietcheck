@@ -1,14 +1,17 @@
-// src/app/analyze/page.tsx (Enhanced Version with MietHistorie)
+// src/app/analyze/page.tsx - With complete data transfer to Service 2
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import FileUpload from '@/components/FileUpload';
-import MietHistorie from '@/components/MietHistorie';
+import MietHistorieExtended from '@/components/MietHistorieExtended';
 import { ContractData } from '@/lib/contract-analyzer';
-import { MietHistorie as MietHistorieType } from '@/lib/miet-calculator';
+import { MietHistorie, DetailValidation } from '@/lib/miet-calculator-extended';
 
 export default function AnalyzePage() {
+  const router = useRouter();
+  
   const [formData, setFormData] = useState({
     address: '',
     netRent: '',
@@ -16,7 +19,8 @@ export default function AnalyzePage() {
     contractDate: '',
   });
 
-  const [mietHistorie, setMietHistorie] = useState<MietHistorieType | null>(null);
+  const [contractData, setContractData] = useState<ContractData | null>(null);
+  const [mietHistorie, setMietHistorie] = useState<MietHistorie | null>(null);
   const [showHistorie, setShowHistorie] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -25,6 +29,9 @@ export default function AnalyzePage() {
   // Handle analysis completion from FileUpload
   const handleAnalysisComplete = (data: ContractData) => {
     console.log('📊 Auto-filling form with analyzed data:', data);
+
+    // Save complete contract data
+    setContractData(data);
 
     // Auto-fill form fields
     setFormData({
@@ -48,8 +55,42 @@ export default function AnalyzePage() {
   };
 
   // Handle MietHistorie changes
-  const handleHistorieChange = (historie: MietHistorieType) => {
+  const handleHistorieChange = (historie: MietHistorie) => {
     setMietHistorie(historie);
+  };
+
+  // Navigate to Service 2 with complete data
+  const handleNavigateToGenerate = () => {
+    // Prepare complete data package
+    const completeData = {
+      contract: {
+        address: formData.address,
+        landlordName: contractData?.landlordName || '',
+        landlordAddress: contractData?.landlordAddress || '',
+        contractDate: formData.contractDate,
+        netRent: parseFloat(formData.netRent),
+        referenceRate: parseFloat(formData.currentRate),
+      },
+      calculation: {
+        currentRent: result.currentRent,
+        newRent: result.newRent,
+        monthlyReduction: result.monthlyReduction,
+        yearlySavings: result.yearlySavings,
+      },
+      historie: mietHistorie,
+      hasHistory: result.hasHistory || false,
+      einsparungDetails: result.einsparungDetails || null,
+      validation: result.validation || null,
+    };
+
+    // Save to sessionStorage (better than localStorage - clears on tab close)
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.setItem('mietCheckData', JSON.stringify(completeData));
+      console.log('💾 Saved complete data to sessionStorage:', completeData);
+    }
+
+    // Navigate to generate page
+    router.push('/generate');
   };
 
   // Submit calculation
@@ -267,17 +308,15 @@ export default function AnalyzePage() {
               </div>
 
               <div className="mt-6 text-center">
-                <Link
-                  href={`/generate?${new URLSearchParams({
-                    address: formData.address,
-                    netRent: formData.netRent,
-                    newRent: result.newRent.toString(),
-                    contractDate: formData.contractDate,
-                  })}`}
+                <button
+                  onClick={handleNavigateToGenerate}
                   className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors"
                 >
                   📄 Weiter zu Service 2: Brief generieren
-                </Link>
+                </button>
+                <p className="text-sm text-gray-600 mt-2">
+                  💡 Alle Daten werden automatisch übernommen
+                </p>
               </div>
             </div>
           )}
@@ -286,7 +325,7 @@ export default function AnalyzePage() {
         {/* MietHistorie Section */}
         {showHistorie && formData.contractDate && formData.netRent && formData.currentRate && (
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <MietHistorie
+            <MietHistorieExtended
               vertragsbeginn={{
                 datum: formData.contractDate,
                 miete: parseFloat(formData.netRent),
@@ -317,6 +356,9 @@ export default function AnalyzePage() {
             </li>
             <li>
               • <strong>NEU:</strong> Erfassen Sie alle bisherigen Mietanpassungen für eine präzisere Berechnung
+            </li>
+            <li>
+              • <strong>NEU:</strong> Alle Daten werden automatisch an Service 2 übergeben - Sie müssen nichts zweimal eingeben!
             </li>
           </ul>
         </div>
