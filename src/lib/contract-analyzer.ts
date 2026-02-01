@@ -1,4 +1,4 @@
-// src/lib/contract-analyzer.ts - Google Gemini mit v1 API
+// src/lib/contract-analyzer.ts - Google Gemini mit v1 API (NICHT v1beta)
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ContractData {
@@ -17,17 +17,10 @@ export async function analyzeContract(contractText: string): Promise<ContractDat
     throw new Error('GEMINI_API_KEY nicht konfiguriert');
   }
 
-  // Initialize with explicit baseUrl for v1 API (not v1beta)
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  
-  // Use models/gemini-1.5-pro (full path, works with free tier)
-  const model = genAI.getGenerativeModel({ 
-    model: 'models/gemini-1.5-pro',
-    generationConfig: {
-      temperature: 0.2,
-      maxOutputTokens: 2048,
-    }
-  });
+  // Force v1 API by using explicit fetch with v1 endpoint
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = 'gemini-pro';
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
 
   const prompt = `Analysiere diesen Schweizer Mietvertrag und extrahiere folgende Informationen im JSON-Format:
 
@@ -58,15 +51,42 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
 }`;
 
   try {
-    console.log('🤖 Sending to Gemini 1.5 Pro...');
+    console.log('🤖 Sending to Gemini Pro (v1 API)...');
     
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Direct fetch to v1 API (bypass SDK's v1beta default)
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 2048,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`API Error ${response.status}: ${errorData}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      throw new Error('Keine Response von Gemini erhalten');
+    }
 
     console.log('📥 Gemini response received:', text.substring(0, 200));
 
-    // Extract JSON from response (remove markdown code blocks if present)
+    // Extract JSON from response
     let jsonText = text.trim();
     if (jsonText.startsWith('```json')) {
       jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -74,18 +94,18 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
       jsonText = jsonText.replace(/```\n?/g, '');
     }
 
-    const data = JSON.parse(jsonText);
+    const parsedData = JSON.parse(jsonText);
 
     // Validate required fields
     const validatedData: ContractData = {
-      address: data.address || '',
-      netRent: parseFloat(data.netRent) || 0,
-      referenceRate: parseFloat(data.referenceRate) || 0,
-      contractDate: data.contractDate || '',
-      landlordName: data.landlordName || '',
-      landlordAddress: data.landlordAddress || '',
-      confidence: data.confidence || 'low',
-      missingFields: data.missingFields || [],
+      address: parsedData.address || '',
+      netRent: parseFloat(parsedData.netRent) || 0,
+      referenceRate: parseFloat(parsedData.referenceRate) || 0,
+      contractDate: parsedData.contractDate || '',
+      landlordName: parsedData.landlordName || '',
+      landlordAddress: parsedData.landlordAddress || '',
+      confidence: parsedData.confidence || 'low',
+      missingFields: parsedData.missingFields || [],
     };
 
     console.log('✅ Contract analysis successful:', {
