@@ -1,4 +1,4 @@
-// src/lib/contract-analyzer.ts - Google Gemini Version (STABLE)
+// src/lib/contract-analyzer.ts - Google Gemini mit v1 API
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ContractData {
@@ -17,11 +17,12 @@ export async function analyzeContract(contractText: string): Promise<ContractDat
     throw new Error('GEMINI_API_KEY nicht konfiguriert');
   }
 
+  // Initialize with explicit baseUrl for v1 API (not v1beta)
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   
-  // Use gemini-pro (stable, guaranteed to work)
+  // Use models/gemini-1.5-pro (full path, works with free tier)
   const model = genAI.getGenerativeModel({ 
-    model: 'gemini-pro',
+    model: 'models/gemini-1.5-pro',
     generationConfig: {
       temperature: 0.2,
       maxOutputTokens: 2048,
@@ -57,7 +58,7 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
 }`;
 
   try {
-    console.log('🤖 Sending to Gemini Pro (stable)...');
+    console.log('🤖 Sending to Gemini 1.5 Pro...');
     
     const result = await model.generateContent(prompt);
     const response = await result.response;
