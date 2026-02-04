@@ -24,9 +24,26 @@ export async function setupDatabase() {
         contract_date DATE,
         landlord_name VARCHAR(255),
         landlord_address VARCHAR(500),
+        tenant_name VARCHAR(255),
+        tenant_address VARCHAR(500),
+        new_rent DECIMAL(10,2),
+        monthly_reduction DECIMAL(10,2),
+        yearly_savings DECIMAL(10,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
+
+    // Add new columns if they don't exist (for existing databases)
+    try {
+      await sql`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS tenant_name VARCHAR(255)`;
+      await sql`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS tenant_address VARCHAR(500)`;
+      await sql`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS new_rent DECIMAL(10,2)`;
+      await sql`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS monthly_reduction DECIMAL(10,2)`;
+      await sql`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS yearly_savings DECIMAL(10,2)`;
+    } catch (e) {
+      // Columns might already exist, ignore error
+      console.log('Columns already exist or migration not needed');
+    }
 
     // Create transactions table
     await sql`

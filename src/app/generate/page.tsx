@@ -1,15 +1,24 @@
-// src/app/generate/page.tsx - With auto-fill from Service 1
+// src/app/generate/page.tsx - With auto-fill from Service 1 & DB
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { splitAddress } from '@/lib/address-helper'
 
-export default function GeneratePage() {
+// Inner component that uses useSearchParams
+function GeneratePageContent() {
+  const searchParams = useSearchParams()
+  const contractId = searchParams.get('contractId')
+  const { data: session } = useSession()
+
   const [loading, setLoading] = useState(false)
+  const [loadingContract, setLoadingContract] = useState(false)
   const [pdfUrl, setPdfUrl] = useState('')
   const [autoFilled, setAutoFilled] = useState(false)
-  
+  const [dataSource, setDataSource] = useState<'db' | 'session' | 'manual'>('manual')
+
   const [formData, setFormData] = useState({
     // Tenant
     email: '',
@@ -31,52 +40,115 @@ export default function GeneratePage() {
     landlordCity: '',
   })
 
-  // Auto-fill from sessionStorage (Service 1 data)
+  // Helper function to fill form from data object
+  const fillFormFromData = useCallback((data: any) => {
+    const landlord = splitAddress(data.contract?.landlordAddress || '')
+    const tenant = splitAddress(data.tenant?.address || data.contract?.address || '')
+
+    setFormData(prev => ({
+      ...prev,
+      tenantName: data.tenant?.name || '',
+      tenantAddress: tenant.street,
+      tenantCity: tenant.city,
+      propertyAddress: data.contract?.address || '',
+      netRent: data.contract?.netRent?.toString() || '',
+      newRent: data.calculation?.newRent?.toFixed(2) || '',
+      monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
+      referenceRate: data.contract?.referenceRate?.toString() || '',
+      contractDate: data.contract?.contractDate || '',
+      landlordName: data.contract?.landlordName || '',
+      landlordAddress: landlord.street,
+      landlordCity: landlord.city,
+    }))
+
+    setAutoFilled(true)
+  }, [])
+
+  // Load contract from database
+  const loadContractFromDB = useCallback(async (id: string, userSession: any) => {
+    setLoadingContract(true)
+    try {
+      const response = await fetch(`/api/user/contracts/${id}`)
+      if (response.ok) {
+        const data = await response.json()
+        const contract = data.contract
+
+        console.log('📥 Loading contract from DB:', contract)
+
+        // Split addresses
+        const landlord = splitAddress(contract.landlord_address || '')
+        const tenant = splitAddress(contract.tenant_address || contract.address || '')
+
+        setFormData(prev => ({
+          ...prev,
+          email: userSession?.user?.email || '',
+          tenantName: contract.tenant_name || '',
+          tenantAddress: tenant.street,
+          tenantCity: tenant.city,
+          propertyAddress: contract.address || '',
+          netRent: contract.net_rent?.toString() || '',
+          newRent: contract.new_rent?.toFixed(2) || '',
+          monthlyReduction: contract.monthly_reduction?.toFixed(2) || '',
+          referenceRate: contract.reference_rate?.toString() || '',
+          contractDate: contract.contract_date?.split('T')[0] || '',
+          landlordName: contract.landlord_name || '',
+          landlordAddress: landlord.street,
+          landlordCity: landlord.city,
+        }))
+
+        setAutoFilled(true)
+        setDataSource('db')
+        console.log('✅ Loaded contract from database')
+      } else {
+        // Fallback auf sessionStorage
+        if (typeof window !== 'undefined') {
+          const savedData = sessionStorage.getItem('mietCheckData')
+          if (savedData) {
+            fillFormFromData(JSON.parse(savedData))
+            setDataSource('session')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error loading from DB:', error)
+      // Fallback auf sessionStorage
+      if (typeof window !== 'undefined') {
+        const savedData = sessionStorage.getItem('mietCheckData')
+        if (savedData) {
+          fillFormFromData(JSON.parse(savedData))
+          setDataSource('session')
+        }
+      }
+    } finally {
+      setLoadingContract(false)
+    }
+  }, [fillFormFromData])
+
+  // Load contract from database if contractId is provided
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
+    if (contractId && session?.user) {
+      loadContractFromDB(contractId, session)
+    }
+  }, [contractId, session, loadContractFromDB])
+
+  // Fallback: Load from sessionStorage
+  useEffect(() => {
+    // Nur laden wenn kein contractId oder DB-Laden fehlgeschlagen
+    if (!contractId && typeof window !== 'undefined' && window.sessionStorage) {
       const savedData = sessionStorage.getItem('mietCheckData')
 
       if (savedData) {
         try {
           const data = JSON.parse(savedData)
-          console.log('📥 Loading data from Service 1:', data)
-
-          // Split landlord address
-          const landlord = splitAddress(data.contract?.landlordAddress || '')
-
-          // Split tenant address (falls vorhanden)
-          const tenant = splitAddress(data.tenant?.address || data.contract?.address || '')
-
-          setFormData(prev => ({
-            ...prev,
-            // Tenant (Mieter) - aus Vertrag oder leer für manuelle Eingabe
-            tenantName: data.tenant?.name || '',
-            tenantAddress: tenant.street,
-            tenantCity: tenant.city,
-
-            // Property (Mietobjekt)
-            propertyAddress: data.contract?.address || '',
-            netRent: data.contract?.netRent?.toString() || '',
-            newRent: data.calculation?.newRent?.toFixed(2) || '',
-            monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
-            referenceRate: data.contract?.referenceRate?.toString() || '',
-            contractDate: data.contract?.contractDate || '',
-
-            // Landlord (Vermieter)
-            landlordName: data.contract?.landlordName || '',
-            landlordAddress: landlord.street,
-            landlordCity: landlord.city,
-          }))
-
-          setAutoFilled(true)
-          console.log('✅ Auto-filled form from Service 1')
-
+          console.log('📥 Loading data from sessionStorage:', data)
+          fillFormFromData(data)
+          setDataSource('session')
         } catch (error) {
-          console.error('❌ Error loading Service 1 data:', error)
+          console.error('❌ Error loading sessionStorage data:', error)
         }
       }
     }
-  }, [])
+  }, [contractId, fillFormFromData])
 
   const handlePayment = async () => {
     const response = await fetch('/api/create-checkout', {
@@ -414,5 +486,26 @@ export default function GeneratePage() {
         </div>
       </main>
     </div>
+  )
+}
+
+// Loading component for Suspense fallback
+function GeneratePageLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Daten werden geladen...</p>
+      </div>
+    </div>
+  )
+}
+
+// Main export wrapped in Suspense boundary
+export default function GeneratePage() {
+  return (
+    <Suspense fallback={<GeneratePageLoading />}>
+      <GeneratePageContent />
+    </Suspense>
   )
 }

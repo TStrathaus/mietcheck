@@ -1,8 +1,9 @@
-// src/app/analyze/page.tsx - With complete data transfer to Service 2
+// src/app/analyze/page.tsx - With complete data transfer to Service 2 & DB persistence
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import FileUpload from '@/components/FileUpload';
 import MietHistorieExtended from '@/components/MietHistorieExtended';
@@ -12,7 +13,8 @@ import { showSuccessToast, showErrorToast, fetchWithRetry, getErrorMessage } fro
 
 export default function AnalyzePage() {
   const router = useRouter();
-  
+  const { data: session } = useSession();
+
   const [formData, setFormData] = useState({
     address: '',
     netRent: '',
@@ -24,6 +26,7 @@ export default function AnalyzePage() {
   const [mietHistorie, setMietHistorie] = useState<MietHistorie | null>(null);
   const [showHistorie, setShowHistorie] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [savedContractId, setSavedContractId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +67,7 @@ export default function AnalyzePage() {
   const handleNavigateToGenerate = () => {
     // Prepare complete data package
     const completeData = {
+      contractId: savedContractId, // DB ID falls gespeichert
       contract: {
         address: formData.address,
         landlordName: contractData?.landlordName || '',
@@ -89,14 +93,18 @@ export default function AnalyzePage() {
       validation: result.validation || null,
     };
 
-    // Save to sessionStorage (better than localStorage - clears on tab close)
+    // Save to sessionStorage (als Backup/Fallback)
     if (typeof window !== 'undefined' && window.sessionStorage) {
       sessionStorage.setItem('mietCheckData', JSON.stringify(completeData));
       console.log('💾 Saved complete data to sessionStorage:', completeData);
     }
 
-    // Navigate to generate page
-    router.push('/generate');
+    // Navigate to generate page (mit contractId falls vorhanden)
+    if (savedContractId) {
+      router.push(`/generate?contractId=${savedContractId}`);
+    } else {
+      router.push('/generate');
+    }
   };
 
   // Submit calculation
@@ -133,6 +141,39 @@ export default function AnalyzePage() {
 
       setResult(data);
       showSuccessToast('Berechnung erfolgreich!');
+
+      // Wenn User eingeloggt ist, speichere den Vertrag in der Datenbank
+      if (session?.user) {
+        try {
+          const saveResponse = await fetch('/api/user/contracts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              address: formData.address,
+              netRent: parseFloat(formData.netRent),
+              referenceRate: parseFloat(formData.currentRate),
+              contractDate: formData.contractDate,
+              landlordName: contractData?.landlordName || '',
+              landlordAddress: contractData?.landlordAddress || '',
+              tenantName: contractData?.tenantName || '',
+              tenantAddress: contractData?.tenantAddress || formData.address,
+              newRent: data.newRent,
+              monthlyReduction: data.monthlyReduction,
+              yearlySavings: data.yearlySavings,
+            }),
+          });
+
+          if (saveResponse.ok) {
+            const savedData = await saveResponse.json();
+            setSavedContractId(savedData.contract.id);
+            showSuccessToast('Vertrag in Ihrem Konto gespeichert!');
+            console.log('✅ Contract saved to database:', savedData.contract);
+          }
+        } catch (saveError) {
+          console.error('⚠️ Could not save to database:', saveError);
+          // Kein Fehler anzeigen - sessionStorage funktioniert als Fallback
+        }
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten';
       setError(errorMessage);
