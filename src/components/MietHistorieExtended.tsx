@@ -103,7 +103,7 @@ export default function MietHistorieExtended({
       const analyzeResponse = await fetch('/api/analyze-anpassung', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blobUrl: blob.url }),
+        body: JSON.stringify({ blobUrl: blob.url, fileType: file.type }),
       });
 
       if (!analyzeResponse.ok) {
