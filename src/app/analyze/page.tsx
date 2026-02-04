@@ -7,7 +7,8 @@ import Link from 'next/link';
 import FileUpload from '@/components/FileUpload';
 import MietHistorieExtended from '@/components/MietHistorieExtended';
 import { ContractData } from '@/lib/contract-analyzer';
-import { MietHistorie, DetailValidation } from '@/lib/miet-calculator-extended';
+import { MietHistorie } from '@/lib/miet-calculator-extended';
+import { showSuccessToast, showErrorToast, fetchWithRetry, getErrorMessage } from '@/lib/api-utils';
 
 export default function AnalyzePage() {
   const router = useRouter();
@@ -101,7 +102,7 @@ export default function AnalyzePage() {
     setResult(null);
 
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetchWithRetry('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,17 +115,23 @@ export default function AnalyzePage() {
           contractDate: formData.contractDate,
           mietHistorie: mietHistorie, // Include history if available
         }),
+        retries: 2,
+        retryDelay: 1000,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Berechnung fehlgeschlagen');
+        const errorMsg = getErrorMessage(response.status, data.error);
+        throw new Error(errorMsg);
       }
 
       setResult(data);
+      showSuccessToast('Berechnung erfolgreich!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+      const errorMessage = err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten';
+      setError(errorMessage);
+      showErrorToast(err, errorMessage);
     } finally {
       setLoading(false);
     }
@@ -306,6 +313,18 @@ export default function AnalyzePage() {
                   </p>
                 </div>
               </div>
+
+              {/* Validation Warnings */}
+              {result.validation?.warnings && result.validation.warnings.length > 0 && (
+                <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-yellow-800 font-medium mb-2">⚠️ Hinweise:</p>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    {result.validation.warnings.map((warning: string, index: number) => (
+                      <li key={index}>• {warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="mt-6 text-center">
                 <button
