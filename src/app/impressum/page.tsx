@@ -23,8 +23,8 @@ export default function ImpressumPage() {
             <div className="text-gray-700 space-y-2">
               <p><strong>MietCheck.ch</strong></p>
               <p>Thomas Strathaus</p>
-              <p>[Strasse und Hausnummer]</p>
-              <p>[PLZ Ort]</p>
+              {/* TODO: Vor Go-Live echte Adresse eintragen */}
+              <p className="text-amber-600 bg-amber-50 px-2 py-1 rounded">[Adresse vor Go-Live eintragen]</p>
               <p>Schweiz</p>
               <p className="mt-4">
                 <strong>E-Mail:</strong>{' '}
