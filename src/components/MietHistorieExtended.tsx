@@ -1,7 +1,7 @@
 // src/components/MietHistorieExtended.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { upload } from '@vercel/blob/client';
 import {
   MietAnpassung,
@@ -11,6 +11,7 @@ import {
   formatSollIstVergleich,
   REFERENZZINSSATZ_HISTORIE,
 } from '@/lib/miet-calculator-extended';
+import { validateFile, showSuccessToast, showErrorToast } from '@/lib/api-utils';
 
 interface MietHistorieExtendedProps {
   vertragsbeginn: {
@@ -39,9 +40,13 @@ export default function MietHistorieExtended({
   const [anpassungen, setAnpassungen] = useState<MietAnpassung[]>([]);
   const [showManualForm, setShowManualForm] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadStep, setUploadStep] = useState<'idle' | 'validating' | 'uploading' | 'analyzing' | 'complete' | 'error'>('idle');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string>('');
   const [analyzedData, setAnalyzedData] = useState<AnalyzeResult | null>(null);
   const [blobUrl, setBlobUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Manual form state
   const [newDatum, setNewDatum] = useState('');
@@ -81,25 +86,63 @@ export default function MietHistorieExtended({
     }
   };
 
+  // Reset upload state
+  const resetUploadState = () => {
+    setUploadStep('idle');
+    setUploadProgress(0);
+    setUploadError(null);
+    setUploadedFileName('');
+    setAnalyzedData(null);
+    setBlobUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Upload & Analyze Document
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
+    setUploadError(null);
+    setUploadedFileName(file.name);
+
+    // Step 1: Validate
+    setUploadStep('validating');
+    setUploadProgress(10);
+
+    const validation = validateFile(file, {
+      maxSize: 10 * 1024 * 1024,
+      allowedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    });
+
+    if (!validation.valid) {
+      setUploadStep('error');
+      setUploadError(validation.error || 'Ungültige Datei');
+      showErrorToast(new Error(validation.error));
+      return;
+    }
+
     try {
-      // Step 1: Upload to Blob
+      // Step 2: Upload to Blob
+      setUploadStep('uploading');
+      setUploadProgress(30);
       console.log('📤 Uploading adjustment document...');
+
       const blob = await upload(file.name, file, {
         access: 'public',
         handleUploadUrl: '/api/upload-url',
       });
-      
+
       setBlobUrl(blob.url);
       console.log('✅ Upload successful:', blob.url);
+      setUploadProgress(50);
 
-      // Step 2: Analyze with Gemini
+      // Step 3: Analyze with Gemini
+      setUploadStep('analyzing');
+      setUploadProgress(70);
       console.log('🤖 Analyzing adjustment document...');
+
       const analyzeResponse = await fetch('/api/analyze-anpassung', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,19 +150,23 @@ export default function MietHistorieExtended({
       });
 
       if (!analyzeResponse.ok) {
-        throw new Error('Analyse fehlgeschlagen');
+        const errorData = await analyzeResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Analyse fehlgeschlagen');
       }
 
       const result = await analyzeResponse.json();
       console.log('✅ Analysis complete:', result);
-      
+
+      setUploadStep('complete');
+      setUploadProgress(100);
       setAnalyzedData(result.data);
-      
+      showSuccessToast('Dokument erfolgreich analysiert!');
+
     } catch (error: any) {
       console.error('❌ Upload/Analysis error:', error);
-      alert('Fehler: ' + error.message);
-    } finally {
-      setUploading(false);
+      setUploadStep('error');
+      setUploadError(error.message || 'Ein Fehler ist aufgetreten');
+      showErrorToast(error, error.message);
     }
   };
 
@@ -138,10 +185,10 @@ export default function MietHistorieExtended({
     };
 
     addAnpassung(neueAnpassung);
-    
+    showSuccessToast('Anpassung hinzugefügt!');
+
     // Reset
-    setAnalyzedData(null);
-    setBlobUrl('');
+    resetUploadState();
     setShowUploadModal(false);
   };
 
@@ -242,20 +289,124 @@ export default function MietHistorieExtended({
       {showUploadModal && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4">
           <h4 className="font-bold text-gray-900">📄 Anpassungs-Dokument hochladen</h4>
-          
+          <p className="text-sm text-gray-600">
+            Laden Sie einen Mieterhöhungs- oder Reduktionsbrief hoch (PDF, JPG oder PNG)
+          </p>
+
           {!analyzedData ? (
-            <div>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
-              {uploading && (
-                <p className="text-sm text-green-600 mt-2">
-                  ⏳ Wird analysiert...
-                </p>
+            <div className="space-y-4">
+              {/* Drop Zone - gleich wie FileUpload */}
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
+                  ['validating', 'uploading', 'analyzing'].includes(uploadStep)
+                    ? 'border-green-400 bg-green-100'
+                    : uploadStep === 'complete'
+                    ? 'border-green-500 bg-green-100'
+                    : uploadStep === 'error'
+                    ? 'border-red-400 bg-red-50'
+                    : 'border-gray-300 hover:border-green-500 hover:bg-green-100 bg-white'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileSelect}
+                  disabled={['validating', 'uploading', 'analyzing'].includes(uploadStep)}
+                  className="hidden"
+                  id="anpassung-file-upload"
+                />
+                <label
+                  htmlFor="anpassung-file-upload"
+                  className={`cursor-pointer ${['validating', 'uploading', 'analyzing'].includes(uploadStep) ? 'cursor-not-allowed' : ''}`}
+                >
+                  {/* Icon based on state */}
+                  <div className="text-5xl mb-3">
+                    {uploadStep === 'idle' && '📄'}
+                    {uploadStep === 'validating' && '🔍'}
+                    {uploadStep === 'uploading' && '📤'}
+                    {uploadStep === 'analyzing' && '🤖'}
+                    {uploadStep === 'complete' && '✅'}
+                    {uploadStep === 'error' && '❌'}
+                  </div>
+
+                  {/* Status message */}
+                  <div className={`text-base font-medium mb-1 ${
+                    uploadStep === 'error' ? 'text-red-700' :
+                    uploadStep === 'complete' ? 'text-green-700' :
+                    ['validating', 'uploading', 'analyzing'].includes(uploadStep) ? 'text-green-700' :
+                    'text-gray-700'
+                  }`}>
+                    {uploadStep === 'idle' && 'Dokument hochladen'}
+                    {uploadStep === 'validating' && 'Datei wird geprüft...'}
+                    {uploadStep === 'uploading' && 'Wird hochgeladen...'}
+                    {uploadStep === 'analyzing' && 'KI analysiert das Dokument...'}
+                    {uploadStep === 'complete' && 'Analyse abgeschlossen!'}
+                    {uploadStep === 'error' && 'Fehler aufgetreten'}
+                  </div>
+
+                  {/* File name or instructions */}
+                  <div className="text-sm text-gray-500">
+                    {uploadedFileName || 'PDF, JPG oder PNG (max. 10 MB)'}
+                  </div>
+                </label>
+              </div>
+
+              {/* Progress Bar */}
+              {['validating', 'uploading', 'analyzing'].includes(uploadStep) && (
+                <div className="relative">
+                  <div className="overflow-hidden h-2 text-xs flex rounded-full bg-green-100">
+                    <div
+                      style={{ width: `${uploadProgress}%` }}
+                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-600 transition-all duration-500"
+                    />
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-500">Fortschritt</span>
+                    <span className="text-xs text-green-600 font-medium">{uploadProgress}%</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Processing Status */}
+              {['validating', 'uploading', 'analyzing'].includes(uploadStep) && (
+                <div className="bg-green-100 border border-green-300 rounded-lg p-3">
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-3" />
+                    <div>
+                      <p className="text-green-800 font-medium text-sm">
+                        {uploadStep === 'uploading' && 'Ihre Datei wird sicher hochgeladen...'}
+                        {uploadStep === 'analyzing' && 'Die KI analysiert Ihr Dokument...'}
+                        {uploadStep === 'validating' && 'Datei wird überprüft...'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error with Retry */}
+              {uploadError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <span className="text-red-500 mr-2">❌</span>
+                    <div className="flex-1">
+                      <p className="text-red-800 font-medium text-sm">{uploadError}</p>
+                      <button
+                        onClick={resetUploadState}
+                        className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                      >
+                        Erneut versuchen
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tip */}
+              {uploadStep === 'idle' && (
+                <div className="text-center text-sm text-gray-500">
+                  <p>💡 Tipp: Für beste Ergebnisse verwenden Sie einen gut lesbaren Scan</p>
+                </div>
               )}
             </div>
           ) : (
@@ -339,16 +490,13 @@ export default function MietHistorieExtended({
               <div className="flex gap-2">
                 <button
                   onClick={handleAcceptAnalyzed}
-                  className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+                  className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-medium"
                 >
                   ✓ Übernehmen
                 </button>
                 <button
-                  onClick={() => {
-                    setAnalyzedData(null);
-                    setBlobUrl('');
-                  }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                  onClick={resetUploadState}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 font-medium"
                 >
                   ✕ Ablehnen
                 </button>
