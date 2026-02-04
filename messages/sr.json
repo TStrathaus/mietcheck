@@ -1,0 +1,265 @@
+{
+  "common": {
+    "back": "Nazad",
+    "backToHome": "Nazad na početnu",
+    "loading": "Učitavanje...",
+    "error": "Greška",
+    "success": "Uspeh",
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "submit": "Pošalji",
+    "download": "Preuzmi",
+    "upload": "Otpremi",
+    "next": "Dalje",
+    "previous": "Prethodno",
+    "yes": "Da",
+    "no": "Ne",
+    "chf": "CHF",
+    "perMonth": "/mesečno",
+    "perYear": "/godišnje"
+  },
+  "nav": {
+    "home": "Početna",
+    "analyze": "Analiza",
+    "generate": "Kreiraj pismo",
+    "dashboard": "Kontrolna tabla",
+    "login": "Prijava",
+    "register": "Registracija",
+    "logout": "Odjava",
+    "impressum": "Impressum",
+    "datenschutz": "Privatnost",
+    "agb": "Uslovi korišćenja"
+  },
+  "home": {
+    "title": "Smanjite kiriju jednim klikom",
+    "subtitle": "Proverite besplatno da li imate pravo na smanjenje kirije",
+    "hero": {
+      "headline": "Uštedite do CHF 200 mesečno",
+      "subheadline": "Referentna kamatna stopa je pala - zatražite smanjenje kirije sada!",
+      "cta": "Proverite ugovor sada"
+    },
+    "features": {
+      "title": "Kako funkcioniše",
+      "step1": {
+        "title": "Otpremite ugovor",
+        "description": "Otpremite ugovor o zakupu kao PDF ili fotografiju"
+      },
+      "step2": {
+        "title": "AI analiza",
+        "description": "Naša AI automatski izvlači sve relevantne podatke"
+      },
+      "step3": {
+        "title": "Izračunajte uštedu",
+        "description": "Odmah vidite koliko možete uštedeti"
+      },
+      "step4": {
+        "title": "Kreirajte pismo",
+        "description": "Dobijte zahtev za smanjenje kirije u skladu sa zakonom"
+      }
+    },
+    "pricing": {
+      "title": "Naše usluge",
+      "service1": {
+        "title": "Analiza ugovora",
+        "price": "CHF 20",
+        "description": "Automatska analiza vašeg ugovora pomoću AI",
+        "features": [
+          "Ekstrakcija podataka pomoću AI",
+          "Izračun vašeg potencijala za uštedu",
+          "Validacija prema švajcarskom zakonu o zakupu"
+        ]
+      },
+      "service2": {
+        "title": "Kreiranje pisma",
+        "price": "CHF 50",
+        "description": "Zahtev za smanjenje kirije u skladu sa zakonom",
+        "features": [
+          "Sve funkcije Usluge 1",
+          "Personalizovano pismo u PDF formatu",
+          "U skladu sa čl. 269d CO",
+          "Uputstva za slanje"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Često postavljana pitanja",
+      "q1": {
+        "question": "Šta je referentna kamatna stopa?",
+        "answer": "Referentna kamatna stopa je prosečna hipotekarna kamatna stopa koju tromesečno objavljuje Savezni ured za stanovanje. Služi kao osnova za prilagođavanje kirije."
+      },
+      "q2": {
+        "question": "Kada imam pravo na smanjenje kirije?",
+        "answer": "Imate pravo na smanjenje kirije ako je referentna kamatna stopa pala od potpisivanja ugovora ili poslednjeg prilagođavanja kirije, a vaš vlasnik nije prilagodio kiriju u skladu s tim."
+      },
+      "q3": {
+        "question": "Da li je zahtev za smanjenje pravno obavezujući?",
+        "answer": "Zahtev za smanjenje se zasniva na čl. 270a CO i čl. 13 OLAL. Vlasnik mora odgovoriti u roku od 30 dana. U slučaju odbijanja, možete kontaktirati autoritet za mirenje."
+      }
+    }
+  },
+  "analyze": {
+    "title": "Usluga 1: Analiza ugovora",
+    "subtitle": "Otpremite ugovor za automatsku analizu",
+    "cost": "Cena",
+    "costValue": "CHF 20 (jednokratno)",
+    "upload": {
+      "title": "Automatska analiza pomoću AI",
+      "description": "Otpremite ugovor (PDF, JPG ili PNG). Naša AI automatski izvlači:",
+      "features": [
+        "Adresu stana",
+        "Neto kiriju (osnovna kirija bez troškova)",
+        "Referentnu kamatnu stopu pri potpisivanju",
+        "Datum ugovora",
+        "Informacije o vlasniku"
+      ],
+      "dropzone": "Otpremite ugovor",
+      "formats": "PDF, JPG ili PNG (maks. 10 MB)",
+      "tip": "Savet: Za najbolje rezultate koristite čitljiv sken"
+    },
+    "form": {
+      "title": "Podaci ugovora",
+      "autoFilled": "(automatski popunjeno)",
+      "manualHint": "Ili unesite podatke ručno ako ne želite da otpremite ugovor.",
+      "checkHint": "Proverite automatski popunjene podatke i ispravite ako je potrebno.",
+      "address": "Adresa stana",
+      "addressPlaceholder": "npr. Ulica Primer 123, 8000 Cirih",
+      "netRent": "Neto kirija (CHF/mesečno)",
+      "netRentPlaceholder": "npr. 2000",
+      "netRentHint": "Osnovna kirija bez troškova",
+      "referenceRate": "Referentna kamatna stopa pri potpisivanju (%)",
+      "contractDate": "Datum ugovora",
+      "calculate": "Izračunaj uštedu",
+      "calculating": "Računanje u toku..."
+    },
+    "result": {
+      "title": "Vaš potencijal za uštedu",
+      "currentRent": "Trenutna kirija",
+      "newRent": "Nova kirija",
+      "monthlyReduction": "Mesečno smanjenje",
+      "yearlySavings": "Godišnja ušteda",
+      "continueToGenerate": "Nastavite na Uslugu 2: Kreiraj pismo",
+      "dataTransferHint": "Svi podaci će biti automatski preneti"
+    },
+    "historie": {
+      "title": "Istorija prilagođavanja kirije",
+      "description": "Otpremite pisma o povećanju/smanjenju ili unesite prilagođavanja ručno.",
+      "uploadDocument": "Otpremi dokument",
+      "manualEntry": "Ručni unos"
+    },
+    "hints": {
+      "title": "Važne napomene",
+      "hint1": "Izračun se zasniva na čl. 13 OLAL (Zakon o zakupu)",
+      "hint2": "Trenutna referentna kamatna stopa je 1.25% (od sept. 2025)",
+      "hint3": "Samo ugovori sa klauzulom o referentnoj stopi su podobni",
+      "hint4": "AI analiza je alat - proverite podatke",
+      "hint5": "Unesite sva prethodna prilagođavanja za precizniji izračun",
+      "hint6": "Svi podaci se automatski prenose na Uslugu 2"
+    }
+  },
+  "generate": {
+    "title": "Usluga 2: Kreiranje dokumenta",
+    "subtitle": "Zahtev za smanjenje kirije u skladu sa zakonom - spreman za slanje",
+    "price": "CHF 50",
+    "priceUnit": "jednokratno",
+    "autoFilled": "Podaci automatski uvezeni iz analize ugovora",
+    "editableHint": "Sva polja možete izmeniti",
+    "tenant": {
+      "title": "Vaši podaci (Stanar)",
+      "fromContract": "(iz ugovora)",
+      "email": "E-mail",
+      "name": "Vaše ime",
+      "namePlaceholder": "Marko Marković",
+      "address": "Vaša adresa",
+      "addressPlaceholder": "Ulica Primer 123",
+      "city": "Poštanski broj i grad",
+      "cityPlaceholder": "8000 Cirih"
+    },
+    "contract": {
+      "title": "Ugovor o zakupu",
+      "propertyAddress": "Adresa stana",
+      "propertyAddressPlaceholder": "Ulica Stana 456, 8000 Cirih",
+      "currentRent": "Trenutna kirija (CHF)",
+      "newRent": "Nova kirija (CHF)",
+      "newRentHint": "Izračunata ciljna kirija",
+      "referenceRate": "Referentna kamatna stopa",
+      "contractDate": "Datum ugovora",
+      "monthlySavings": "Mesečna ušteda",
+      "yearlySavings": "Godišnje"
+    },
+    "landlord": {
+      "title": "Vlasnik",
+      "name": "Ime vlasnika",
+      "namePlaceholder": "Upravljanje Nekretninama d.o.o.",
+      "address": "Adresa",
+      "addressPlaceholder": "Ulica Upravljanja 1",
+      "city": "Poštanski broj i grad",
+      "cityPlaceholder": "8000 Cirih"
+    },
+    "included": {
+      "title": "Šta dobijate:",
+      "item1": "Sve funkcije Usluge 1 (Analiza)",
+      "item2": "Kompletan zahtev za smanjenje kirije u PDF-u",
+      "item3": "U skladu sa čl. 13 OLAL",
+      "item4": "Personalizovano sa svim vašim podacima",
+      "item5": "Spremno za štampu i slanje",
+      "item6": "Uputstva za preporučenu poštu"
+    },
+    "cta": "Kreiraj dokument za CHF 50",
+    "success": {
+      "title": "Dokument uspešno kreiran!",
+      "subtitle": "Vaš zahtev za smanjenje kirije u skladu sa zakonom je spreman.",
+      "download": "Preuzmi PDF",
+      "nextSteps": {
+        "title": "Sledeći koraci:",
+        "step1": "Odštampajte PDF i potpišite ga",
+        "step2": "Pošaljite preporučenom poštom vlasniku",
+        "step3": "Sačekajte 30 dana za odgovor",
+        "step4": "U slučaju odbijanja: Kontaktirajte autoritet za mirenje"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Prijava",
+      "email": "E-mail",
+      "password": "Lozinka",
+      "submit": "Prijavi se",
+      "noAccount": "Nemate nalog?",
+      "register": "Registrujte se sada"
+    },
+    "register": {
+      "title": "Registracija",
+      "name": "Ime",
+      "email": "E-mail",
+      "password": "Lozinka",
+      "confirmPassword": "Potvrdite lozinku",
+      "submit": "Registruj se",
+      "hasAccount": "Već imate nalog?",
+      "login": "Prijavite se sada"
+    }
+  },
+  "dashboard": {
+    "title": "Moja kontrolna tabla",
+    "contracts": {
+      "title": "Moji ugovori",
+      "empty": "Još niste analizirali nijedan ugovor.",
+      "analyze": "Analiziraj ugovor sada"
+    }
+  },
+  "errors": {
+    "generic": "Došlo je do greške",
+    "network": "Greška mreže - proverite vašu internet konekciju",
+    "unauthorized": "Molimo prijavite se",
+    "notFound": "Nije pronađeno",
+    "validation": "Proverite vaše podatke",
+    "upload": {
+      "tooLarge": "Fajl prevelik (maks. 10 MB)",
+      "invalidType": "Nevažeći tip fajla. Dozvoljeno: PDF, JPG, PNG",
+      "failed": "Otpremanje nije uspelo"
+    }
+  },
+  "footer": {
+    "copyright": "MietCheck.ch - Sva prava zadržana",
+    "legal": "Pravne napomene"
+  }
+}

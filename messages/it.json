@@ -1,0 +1,265 @@
+{
+  "common": {
+    "back": "Indietro",
+    "backToHome": "Torna alla home",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "submit": "Invia",
+    "download": "Scarica",
+    "upload": "Carica",
+    "next": "Avanti",
+    "previous": "Precedente",
+    "yes": "Sì",
+    "no": "No",
+    "chf": "CHF",
+    "perMonth": "/mese",
+    "perYear": "/anno"
+  },
+  "nav": {
+    "home": "Home",
+    "analyze": "Analisi",
+    "generate": "Crea lettera",
+    "dashboard": "Dashboard",
+    "login": "Accedi",
+    "register": "Registrati",
+    "logout": "Esci",
+    "impressum": "Impressum",
+    "datenschutz": "Privacy",
+    "agb": "CGC"
+  },
+  "home": {
+    "title": "Riduci l'affitto con un clic",
+    "subtitle": "Verifica gratuitamente se hai diritto a una riduzione dell'affitto",
+    "hero": {
+      "headline": "Risparmia fino a CHF 200 al mese",
+      "subheadline": "Il tasso di riferimento è sceso - richiedi ora la tua riduzione dell'affitto!",
+      "cta": "Verifica il tuo contratto ora"
+    },
+    "features": {
+      "title": "Come funziona",
+      "step1": {
+        "title": "Carica il contratto",
+        "description": "Carica il tuo contratto di locazione come PDF o foto"
+      },
+      "step2": {
+        "title": "Analisi IA",
+        "description": "La nostra IA estrae automaticamente tutti i dati rilevanti"
+      },
+      "step3": {
+        "title": "Calcola il risparmio",
+        "description": "Scopri subito quanto puoi risparmiare"
+      },
+      "step4": {
+        "title": "Genera la lettera",
+        "description": "Ricevi una richiesta di riduzione dell'affitto conforme alla legge"
+      }
+    },
+    "pricing": {
+      "title": "I nostri servizi",
+      "service1": {
+        "title": "Analisi del contratto",
+        "price": "CHF 20",
+        "description": "Analisi automatica del tuo contratto con IA",
+        "features": [
+          "Estrazione dati con IA",
+          "Calcolo del tuo potenziale di risparmio",
+          "Validazione secondo il diritto locativo svizzero"
+        ]
+      },
+      "service2": {
+        "title": "Creazione lettera",
+        "price": "CHF 50",
+        "description": "Richiesta di riduzione dell'affitto conforme alla legge",
+        "features": [
+          "Tutte le funzioni del Servizio 1",
+          "Lettera personalizzata in PDF",
+          "Conforme all'art. 269d CO",
+          "Istruzioni per l'invio"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Domande frequenti",
+      "q1": {
+        "question": "Cos'è il tasso di riferimento?",
+        "answer": "Il tasso di riferimento è un tasso d'interesse ipotecario medio pubblicato trimestralmente dall'Ufficio federale delle abitazioni. Serve come base per gli adeguamenti dell'affitto."
+      },
+      "q2": {
+        "question": "Quando ho diritto a una riduzione dell'affitto?",
+        "answer": "Hai diritto a una riduzione dell'affitto se il tasso di riferimento è sceso dalla firma del contratto o dall'ultimo adeguamento dell'affitto e il proprietario non ha adeguato l'affitto di conseguenza."
+      },
+      "q3": {
+        "question": "La richiesta di riduzione è giuridicamente vincolante?",
+        "answer": "La richiesta di riduzione si basa sull'art. 270a CO e sull'art. 13 OLAL. Il proprietario deve rispondere entro 30 giorni. In caso di rifiuto, puoi contattare l'autorità di conciliazione."
+      }
+    }
+  },
+  "analyze": {
+    "title": "Servizio 1: Analisi del contratto",
+    "subtitle": "Carica il tuo contratto per un'analisi automatica",
+    "cost": "Costo",
+    "costValue": "CHF 20 (una tantum)",
+    "upload": {
+      "title": "Analisi automatica con IA",
+      "description": "Carica il tuo contratto (PDF, JPG o PNG). La nostra IA estrae automaticamente:",
+      "features": [
+        "Indirizzo dell'alloggio",
+        "Affitto netto (affitto base senza spese accessorie)",
+        "Tasso di riferimento alla firma",
+        "Data del contratto",
+        "Informazioni sul proprietario"
+      ],
+      "dropzone": "Carica contratto",
+      "formats": "PDF, JPG o PNG (max. 10 MB)",
+      "tip": "Suggerimento: Per risultati migliori, usa una scansione leggibile"
+    },
+    "form": {
+      "title": "Dati del contratto",
+      "autoFilled": "(compilato automaticamente)",
+      "manualHint": "Oppure inserisci i dati manualmente se non vuoi caricare un contratto.",
+      "checkHint": "Verifica i dati compilati automaticamente e correggi se necessario.",
+      "address": "Indirizzo dell'alloggio",
+      "addressPlaceholder": "es. Via Esempio 123, 6900 Lugano",
+      "netRent": "Affitto netto (CHF/mese)",
+      "netRentPlaceholder": "es. 2000",
+      "netRentHint": "Affitto base senza spese accessorie",
+      "referenceRate": "Tasso di riferimento alla firma (%)",
+      "contractDate": "Data del contratto",
+      "calculate": "Calcola risparmio",
+      "calculating": "Calcolo in corso..."
+    },
+    "result": {
+      "title": "Il tuo potenziale di risparmio",
+      "currentRent": "Affitto attuale",
+      "newRent": "Nuovo affitto",
+      "monthlyReduction": "Riduzione mensile",
+      "yearlySavings": "Risparmio annuale",
+      "continueToGenerate": "Continua al Servizio 2: Crea lettera",
+      "dataTransferHint": "Tutti i dati verranno trasferiti automaticamente"
+    },
+    "historie": {
+      "title": "Storico degli adeguamenti",
+      "description": "Carica lettere di aumento/riduzione o inserisci gli adeguamenti manualmente.",
+      "uploadDocument": "Carica documento",
+      "manualEntry": "Inserimento manuale"
+    },
+    "hints": {
+      "title": "Note importanti",
+      "hint1": "Il calcolo si basa sull'art. 13 OLAL (Diritto locativo)",
+      "hint2": "Il tasso di riferimento attuale è 1.25% (da sett. 2025)",
+      "hint3": "Solo i contratti con clausola sul tasso di riferimento sono idonei",
+      "hint4": "L'analisi IA è uno strumento - verifica i dati",
+      "hint5": "Inserisci tutti gli adeguamenti precedenti per un calcolo più preciso",
+      "hint6": "Tutti i dati vengono trasferiti automaticamente al Servizio 2"
+    }
+  },
+  "generate": {
+    "title": "Servizio 2: Creazione documento",
+    "subtitle": "Richiesta di riduzione dell'affitto conforme - pronta per l'invio",
+    "price": "CHF 50",
+    "priceUnit": "una tantum",
+    "autoFilled": "Dati importati automaticamente dall'analisi del contratto",
+    "editableHint": "Tutti i campi possono essere modificati",
+    "tenant": {
+      "title": "I tuoi dati (Inquilino)",
+      "fromContract": "(dal contratto)",
+      "email": "E-mail",
+      "name": "Il tuo nome",
+      "namePlaceholder": "Mario Rossi",
+      "address": "Il tuo indirizzo",
+      "addressPlaceholder": "Via Esempio 123",
+      "city": "CAP & Località",
+      "cityPlaceholder": "6900 Lugano"
+    },
+    "contract": {
+      "title": "Contratto di locazione",
+      "propertyAddress": "Indirizzo dell'alloggio",
+      "propertyAddressPlaceholder": "Via Alloggio 456, 6900 Lugano",
+      "currentRent": "Affitto attuale (CHF)",
+      "newRent": "Nuovo affitto (CHF)",
+      "newRentHint": "Affitto target calcolato",
+      "referenceRate": "Tasso di riferimento",
+      "contractDate": "Data del contratto",
+      "monthlySavings": "Risparmio mensile",
+      "yearlySavings": "Annuale"
+    },
+    "landlord": {
+      "title": "Proprietario",
+      "name": "Nome del proprietario",
+      "namePlaceholder": "Gestione Immobiliare SA",
+      "address": "Indirizzo",
+      "addressPlaceholder": "Via Gestione 1",
+      "city": "CAP & Località",
+      "cityPlaceholder": "6900 Lugano"
+    },
+    "included": {
+      "title": "Cosa ricevi:",
+      "item1": "Tutte le funzioni del Servizio 1 (Analisi)",
+      "item2": "Richiesta di riduzione completa in PDF",
+      "item3": "Conforme all'art. 13 OLAL",
+      "item4": "Personalizzata con tutti i tuoi dati",
+      "item5": "Pronta per stampare & inviare",
+      "item6": "Istruzioni per la raccomandata"
+    },
+    "cta": "Crea documento per CHF 50",
+    "success": {
+      "title": "Documento creato con successo!",
+      "subtitle": "La tua richiesta di riduzione dell'affitto conforme è pronta.",
+      "download": "Scarica PDF",
+      "nextSteps": {
+        "title": "Prossimi passi:",
+        "step1": "Stampa il PDF e firmalo",
+        "step2": "Invia per raccomandata al proprietario",
+        "step3": "Attendi 30 giorni per la risposta",
+        "step4": "In caso di rifiuto: Contatta l'autorità di conciliazione"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Accedi",
+      "email": "E-mail",
+      "password": "Password",
+      "submit": "Accedi",
+      "noAccount": "Non hai un account?",
+      "register": "Registrati ora"
+    },
+    "register": {
+      "title": "Registrazione",
+      "name": "Nome",
+      "email": "E-mail",
+      "password": "Password",
+      "confirmPassword": "Conferma password",
+      "submit": "Registrati",
+      "hasAccount": "Hai già un account?",
+      "login": "Accedi ora"
+    }
+  },
+  "dashboard": {
+    "title": "La mia dashboard",
+    "contracts": {
+      "title": "I miei contratti",
+      "empty": "Non hai ancora analizzato nessun contratto.",
+      "analyze": "Analizza un contratto ora"
+    }
+  },
+  "errors": {
+    "generic": "Si è verificato un errore",
+    "network": "Errore di rete - controlla la tua connessione internet",
+    "unauthorized": "Effettua l'accesso",
+    "notFound": "Non trovato",
+    "validation": "Controlla i tuoi dati",
+    "upload": {
+      "tooLarge": "File troppo grande (max. 10 MB)",
+      "invalidType": "Tipo di file non valido. Consentiti: PDF, JPG, PNG",
+      "failed": "Caricamento fallito"
+    }
+  },
+  "footer": {
+    "copyright": "MietCheck.ch - Tutti i diritti riservati",
+    "legal": "Note legali"
+  }
+}

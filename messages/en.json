@@ -1,0 +1,265 @@
+{
+  "common": {
+    "back": "Back",
+    "backToHome": "Back to Home",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "download": "Download",
+    "upload": "Upload",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "chf": "CHF",
+    "perMonth": "/month",
+    "perYear": "/year"
+  },
+  "nav": {
+    "home": "Home",
+    "analyze": "Analysis",
+    "generate": "Generate Letter",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "impressum": "Imprint",
+    "datenschutz": "Privacy Policy",
+    "agb": "Terms & Conditions"
+  },
+  "home": {
+    "title": "Reduce Your Rent with One Click",
+    "subtitle": "Check for free if you're entitled to a rent reduction",
+    "hero": {
+      "headline": "Save up to CHF 200 per Month",
+      "subheadline": "The reference interest rate has dropped - claim your rent reduction now!",
+      "cta": "Check Your Lease Now"
+    },
+    "features": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Upload Contract",
+        "description": "Upload your lease agreement as PDF or photo"
+      },
+      "step2": {
+        "title": "AI Analysis",
+        "description": "Our AI automatically extracts all relevant data"
+      },
+      "step3": {
+        "title": "Calculate Savings",
+        "description": "See immediately how much you can save"
+      },
+      "step4": {
+        "title": "Generate Letter",
+        "description": "Receive a legally compliant rent reduction request"
+      }
+    },
+    "pricing": {
+      "title": "Our Services",
+      "service1": {
+        "title": "Lease Analysis",
+        "price": "CHF 20",
+        "description": "Automatic analysis of your lease with AI",
+        "features": [
+          "AI-powered data extraction",
+          "Calculation of your savings potential",
+          "Validation according to Swiss tenancy law"
+        ]
+      },
+      "service2": {
+        "title": "Letter Generation",
+        "price": "CHF 50",
+        "description": "Legally compliant rent reduction request",
+        "features": [
+          "All features of Service 1",
+          "Personalized letter as PDF",
+          "Legally compliant per OR 269d",
+          "Instructions for sending"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": {
+        "question": "What is the reference interest rate?",
+        "answer": "The reference interest rate is an average mortgage interest rate published quarterly by the Federal Office for Housing. It serves as the basis for rent adjustments."
+      },
+      "q2": {
+        "question": "When am I entitled to a rent reduction?",
+        "answer": "You are entitled to a rent reduction if the reference interest rate has dropped since your contract was signed or since the last rent adjustment, and your landlord has not adjusted the rent accordingly."
+      },
+      "q3": {
+        "question": "Is the rent reduction request legally binding?",
+        "answer": "The rent reduction request is based on Art. 270a OR and Art. 13 VMWG. The landlord must respond within 30 days. If rejected, you can contact the conciliation authority."
+      }
+    }
+  },
+  "analyze": {
+    "title": "Service 1: Lease Analysis",
+    "subtitle": "Upload your lease for automatic analysis",
+    "cost": "Cost",
+    "costValue": "CHF 20 (one-time)",
+    "upload": {
+      "title": "Automatic Analysis with AI",
+      "description": "Upload your lease (PDF, JPG, or PNG). Our AI automatically extracts:",
+      "features": [
+        "Property address",
+        "Net rent (base rent without utilities)",
+        "Reference interest rate at contract signing",
+        "Contract date",
+        "Landlord information"
+      ],
+      "dropzone": "Upload lease",
+      "formats": "PDF, JPG or PNG (max. 10 MB)",
+      "tip": "Tip: For best results, use a clearly legible scan"
+    },
+    "form": {
+      "title": "Contract Data",
+      "autoFilled": "(automatically filled)",
+      "manualHint": "Or enter the data manually if you don't want to upload a contract.",
+      "checkHint": "Please review the automatically filled data and correct if necessary.",
+      "address": "Property Address",
+      "addressPlaceholder": "e.g. Musterstrasse 123, 8000 Zürich",
+      "netRent": "Net Rent (CHF/month)",
+      "netRentPlaceholder": "e.g. 2000",
+      "netRentHint": "Base rent without utilities",
+      "referenceRate": "Reference Interest Rate at Contract Signing (%)",
+      "contractDate": "Contract Date",
+      "calculate": "Calculate Savings",
+      "calculating": "Calculating..."
+    },
+    "result": {
+      "title": "Your Savings Potential",
+      "currentRent": "Current Rent",
+      "newRent": "New Rent",
+      "monthlyReduction": "Monthly Reduction",
+      "yearlySavings": "Yearly Savings",
+      "continueToGenerate": "Continue to Service 2: Generate Letter",
+      "dataTransferHint": "All data will be transferred automatically"
+    },
+    "historie": {
+      "title": "Rent Adjustment History",
+      "description": "Upload rent increase/reduction letters or enter adjustments manually.",
+      "uploadDocument": "Upload Document",
+      "manualEntry": "Manual Entry"
+    },
+    "hints": {
+      "title": "Important Notes",
+      "hint1": "The calculation is based on Art. 13 VMWG (Tenancy Law)",
+      "hint2": "The current reference interest rate is 1.25% (since Sept 2025)",
+      "hint3": "Only leases with a reference rate clause are eligible",
+      "hint4": "The AI analysis is a tool - please verify the data",
+      "hint5": "Enter all previous rent adjustments for a more accurate calculation",
+      "hint6": "All data is automatically transferred to Service 2"
+    }
+  },
+  "generate": {
+    "title": "Service 2: Document Generation",
+    "subtitle": "Legally compliant rent reduction request - ready to send",
+    "price": "CHF 50",
+    "priceUnit": "one-time",
+    "autoFilled": "Data automatically imported from lease analysis",
+    "editableHint": "All fields can be edited by you",
+    "tenant": {
+      "title": "Your Details (Tenant)",
+      "fromContract": "(from contract)",
+      "email": "Email",
+      "name": "Your Name",
+      "namePlaceholder": "John Doe",
+      "address": "Your Address",
+      "addressPlaceholder": "Main Street 123",
+      "city": "ZIP & City",
+      "cityPlaceholder": "8000 Zürich"
+    },
+    "contract": {
+      "title": "Lease Agreement",
+      "propertyAddress": "Property Address",
+      "propertyAddressPlaceholder": "Apartment St. 456, 8000 Zürich",
+      "currentRent": "Current Rent (CHF)",
+      "newRent": "New Rent (CHF)",
+      "newRentHint": "Calculated target rent",
+      "referenceRate": "Reference Interest Rate",
+      "contractDate": "Contract Date",
+      "monthlySavings": "Monthly Savings",
+      "yearlySavings": "Yearly"
+    },
+    "landlord": {
+      "title": "Landlord",
+      "name": "Landlord Name",
+      "namePlaceholder": "Property Management Inc.",
+      "address": "Address",
+      "addressPlaceholder": "Management St. 1",
+      "city": "ZIP & City",
+      "cityPlaceholder": "8000 Zürich"
+    },
+    "included": {
+      "title": "What You Get:",
+      "item1": "All features of Service 1 (Analysis)",
+      "item2": "Complete rent reduction request as PDF",
+      "item3": "Legally compliant per Art. 13 VMWG",
+      "item4": "Personalized with all your data",
+      "item5": "Ready to print & send",
+      "item6": "Instructions for registered mail"
+    },
+    "cta": "Generate Document for CHF 50",
+    "success": {
+      "title": "Document Successfully Created!",
+      "subtitle": "Your legally compliant rent reduction request is ready.",
+      "download": "Download PDF",
+      "nextSteps": {
+        "title": "Next Steps:",
+        "step1": "Print the PDF & sign it",
+        "step2": "Send via registered mail to landlord",
+        "step3": "Wait 30 days for response",
+        "step4": "If rejected: Contact conciliation authority"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "No account yet?",
+      "register": "Register now"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "hasAccount": "Already have an account?",
+      "login": "Login now"
+    }
+  },
+  "dashboard": {
+    "title": "My Dashboard",
+    "contracts": {
+      "title": "My Contracts",
+      "empty": "You haven't analyzed any contracts yet.",
+      "analyze": "Analyze Contract Now"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Network error - please check your internet connection",
+    "unauthorized": "Please log in",
+    "notFound": "Not found",
+    "validation": "Please check your input",
+    "upload": {
+      "tooLarge": "File too large (max. 10 MB)",
+      "invalidType": "Invalid file type. Allowed: PDF, JPG, PNG",
+      "failed": "Upload failed"
+    }
+  },
+  "footer": {
+    "copyright": "MietCheck.ch - All rights reserved",
+    "legal": "Legal"
+  }
+}

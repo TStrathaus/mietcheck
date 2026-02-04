@@ -1,0 +1,265 @@
+{
+  "common": {
+    "back": "Zurück",
+    "backToHome": "Zurück zur Startseite",
+    "loading": "Wird geladen...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "submit": "Absenden",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "yes": "Ja",
+    "no": "Nein",
+    "chf": "CHF",
+    "perMonth": "/Monat",
+    "perYear": "/Jahr"
+  },
+  "nav": {
+    "home": "Startseite",
+    "analyze": "Analyse",
+    "generate": "Brief erstellen",
+    "dashboard": "Dashboard",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "impressum": "Impressum",
+    "datenschutz": "Datenschutz",
+    "agb": "AGB"
+  },
+  "home": {
+    "title": "Miete senken mit einem Klick",
+    "subtitle": "Prüfen Sie kostenlos, ob Sie Anspruch auf eine Mietreduktion haben",
+    "hero": {
+      "headline": "Sparen Sie bis zu CHF 200 pro Monat",
+      "subheadline": "Der Referenzzinssatz ist gesunken - fordern Sie jetzt Ihre Mietreduktion ein!",
+      "cta": "Jetzt Mietvertrag prüfen"
+    },
+    "features": {
+      "title": "So funktioniert's",
+      "step1": {
+        "title": "Vertrag hochladen",
+        "description": "Laden Sie Ihren Mietvertrag als PDF oder Foto hoch"
+      },
+      "step2": {
+        "title": "KI-Analyse",
+        "description": "Unsere KI extrahiert automatisch alle relevanten Daten"
+      },
+      "step3": {
+        "title": "Einsparung berechnen",
+        "description": "Sehen Sie sofort, wie viel Sie sparen können"
+      },
+      "step4": {
+        "title": "Brief generieren",
+        "description": "Erhalten Sie ein rechtssicheres Herabsetzungsbegehren"
+      }
+    },
+    "pricing": {
+      "title": "Unsere Services",
+      "service1": {
+        "title": "Mietvertrag-Analyse",
+        "price": "CHF 20",
+        "description": "Automatische Analyse Ihres Mietvertrags mit KI",
+        "features": [
+          "KI-gestützte Datenextraktion",
+          "Berechnung Ihres Einsparungspotentials",
+          "Validierung nach Schweizer Mietrecht"
+        ]
+      },
+      "service2": {
+        "title": "Brief-Erstellung",
+        "price": "CHF 50",
+        "description": "Rechtssicheres Herabsetzungsbegehren",
+        "features": [
+          "Alle Funktionen von Service 1",
+          "Personalisiertes Schreiben als PDF",
+          "Rechtssicher nach OR 269d",
+          "Anleitung für den Versand"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Häufige Fragen",
+      "q1": {
+        "question": "Was ist der Referenzzinssatz?",
+        "answer": "Der Referenzzinssatz ist ein vom Bundesamt für Wohnungswesen vierteljährlich veröffentlichter Durchschnittszinssatz für Hypotheken. Er dient als Grundlage für Mietanpassungen."
+      },
+      "q2": {
+        "question": "Wann habe ich Anspruch auf eine Mietreduktion?",
+        "answer": "Sie haben Anspruch auf eine Mietreduktion, wenn der Referenzzinssatz seit Ihrem Vertragsabschluss oder der letzten Mietanpassung gesunken ist und Ihr Vermieter die Miete nicht entsprechend angepasst hat."
+      },
+      "q3": {
+        "question": "Ist das Herabsetzungsbegehren rechtlich bindend?",
+        "answer": "Das Herabsetzungsbegehren basiert auf Art. 270a OR und Art. 13 VMWG. Der Vermieter muss innerhalb von 30 Tagen antworten. Bei Ablehnung können Sie die Schlichtungsbehörde anrufen."
+      }
+    }
+  },
+  "analyze": {
+    "title": "Service 1: Mietvertrag-Analyse",
+    "subtitle": "Laden Sie Ihren Mietvertrag hoch für eine automatische Analyse",
+    "cost": "Kosten",
+    "costValue": "CHF 20 (einmalig)",
+    "upload": {
+      "title": "Automatische Analyse mit KI",
+      "description": "Laden Sie Ihren Mietvertrag hoch (PDF, JPG oder PNG). Unsere KI extrahiert automatisch:",
+      "features": [
+        "Adresse der Mietwohnung",
+        "Nettomiete (Grundmiete ohne Nebenkosten)",
+        "Referenzzinssatz bei Vertragsabschluss",
+        "Vertragsdatum",
+        "Vermieterinformationen"
+      ],
+      "dropzone": "Mietvertrag hochladen",
+      "formats": "PDF, JPG oder PNG (max. 10 MB)",
+      "tip": "Tipp: Für beste Ergebnisse verwenden Sie einen gut lesbaren Scan"
+    },
+    "form": {
+      "title": "Vertragsdaten",
+      "autoFilled": "(automatisch ausgefüllt)",
+      "manualHint": "Oder geben Sie die Daten manuell ein, falls Sie keinen Vertrag hochladen möchten.",
+      "checkHint": "Bitte überprüfen Sie die automatisch ausgefüllten Daten und korrigieren Sie sie bei Bedarf.",
+      "address": "Adresse der Mietwohnung",
+      "addressPlaceholder": "z.B. Musterstrasse 123, 8000 Zürich",
+      "netRent": "Nettomiete (CHF/Monat)",
+      "netRentPlaceholder": "z.B. 2000",
+      "netRentHint": "Grundmiete ohne Nebenkosten",
+      "referenceRate": "Referenzzinssatz bei Vertragsabschluss (%)",
+      "contractDate": "Vertragsdatum",
+      "calculate": "Einsparung berechnen",
+      "calculating": "Berechnung läuft..."
+    },
+    "result": {
+      "title": "Ihr Einsparungspotential",
+      "currentRent": "Aktuelle Miete",
+      "newRent": "Neue Miete",
+      "monthlyReduction": "Monatliche Reduktion",
+      "yearlySavings": "Jährliche Einsparung",
+      "continueToGenerate": "Weiter zu Service 2: Brief generieren",
+      "dataTransferHint": "Alle Daten werden automatisch übernommen"
+    },
+    "historie": {
+      "title": "Mietanpassungs-Historie",
+      "description": "Laden Sie Mieterhöhungs-/Reduktionsbriefe hoch oder erfassen Sie Anpassungen manuell.",
+      "uploadDocument": "Dokument hochladen",
+      "manualEntry": "Manuell erfassen"
+    },
+    "hints": {
+      "title": "Wichtige Hinweise",
+      "hint1": "Die Berechnung basiert auf Art. 13 VMWG (Mietrecht)",
+      "hint2": "Der aktuelle Referenzzinssatz beträgt 1.25% (seit Sept 2025)",
+      "hint3": "Nur Mietverträge mit Referenzzins-Klausel sind berechtigt",
+      "hint4": "Die KI-Analyse ist ein Hilfsmittel - bitte prüfen Sie die Daten",
+      "hint5": "Erfassen Sie alle bisherigen Mietanpassungen für eine präzisere Berechnung",
+      "hint6": "Alle Daten werden automatisch an Service 2 übergeben"
+    }
+  },
+  "generate": {
+    "title": "Service 2: Dokument-Erstellung",
+    "subtitle": "Rechtssicheres Herabsetzungsbegehren - fertig zum Versand",
+    "price": "CHF 50",
+    "priceUnit": "einmalig",
+    "autoFilled": "Daten automatisch aus Mietvertrag-Analyse übernommen",
+    "editableHint": "Alle Felder können von Ihnen angepasst werden",
+    "tenant": {
+      "title": "Deine Daten (Mieter)",
+      "fromContract": "(aus Vertrag)",
+      "email": "E-Mail",
+      "name": "Dein Name",
+      "namePlaceholder": "Max Muster",
+      "address": "Deine Adresse",
+      "addressPlaceholder": "Musterstrasse 123",
+      "city": "PLZ & Ort",
+      "cityPlaceholder": "8000 Zürich"
+    },
+    "contract": {
+      "title": "Mietvertrag",
+      "propertyAddress": "Adresse der Mietwohnung",
+      "propertyAddressPlaceholder": "Wohnstrasse 456, 8000 Zürich",
+      "currentRent": "Aktuelle Miete (CHF)",
+      "newRent": "Neue Miete (CHF)",
+      "newRentHint": "Berechnete Sollmiete",
+      "referenceRate": "Referenzzinssatz",
+      "contractDate": "Vertragsdatum",
+      "monthlySavings": "Monatliche Einsparung",
+      "yearlySavings": "Jährlich"
+    },
+    "landlord": {
+      "title": "Vermieter",
+      "name": "Name des Vermieters",
+      "namePlaceholder": "Immobilien AG",
+      "address": "Adresse",
+      "addressPlaceholder": "Hausverwaltung 1",
+      "city": "PLZ & Ort",
+      "cityPlaceholder": "8000 Zürich"
+    },
+    "included": {
+      "title": "Was du erhältst:",
+      "item1": "Alle Funktionen von Service 1 (Analyse)",
+      "item2": "Fertiges Herabsetzungsbegehren als PDF",
+      "item3": "Rechtssicher nach Art. 13 VMWG",
+      "item4": "Personalisiert mit all deinen Daten",
+      "item5": "Bereit zum Ausdrucken & Versenden",
+      "item6": "Anleitung für Einschreiben-Versand"
+    },
+    "cta": "Jetzt für CHF 50 Dokument erstellen",
+    "success": {
+      "title": "Dokument erfolgreich erstellt!",
+      "subtitle": "Dein rechtssicheres Herabsetzungsbegehren ist bereit.",
+      "download": "PDF herunterladen",
+      "nextSteps": {
+        "title": "Nächste Schritte:",
+        "step1": "PDF ausdrucken & unterschreiben",
+        "step2": "Per Einschreiben (A-Post Plus) an Vermieter senden",
+        "step3": "30 Tage auf Antwort warten",
+        "step4": "Bei Ablehnung: Schlichtungsbehörde kontaktieren"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "register": "Jetzt registrieren"
+    },
+    "register": {
+      "title": "Registrieren",
+      "name": "Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "submit": "Registrieren",
+      "hasAccount": "Bereits ein Konto?",
+      "login": "Jetzt anmelden"
+    }
+  },
+  "dashboard": {
+    "title": "Mein Dashboard",
+    "contracts": {
+      "title": "Meine Verträge",
+      "empty": "Sie haben noch keine Verträge analysiert.",
+      "analyze": "Jetzt Vertrag analysieren"
+    }
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten",
+    "network": "Netzwerkfehler - bitte überprüfen Sie Ihre Internetverbindung",
+    "unauthorized": "Bitte melden Sie sich an",
+    "notFound": "Nicht gefunden",
+    "validation": "Bitte überprüfen Sie Ihre Eingaben",
+    "upload": {
+      "tooLarge": "Datei zu gross (max. 10 MB)",
+      "invalidType": "Ungültiger Dateityp. Erlaubt: PDF, JPG, PNG",
+      "failed": "Upload fehlgeschlagen"
+    }
+  },
+  "footer": {
+    "copyright": "MietCheck.ch - Alle Rechte vorbehalten",
+    "legal": "Rechtliches"
+  }
+}

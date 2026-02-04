@@ -1,0 +1,265 @@
+{
+  "common": {
+    "back": "Retour",
+    "backToHome": "Retour à l'accueil",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Soumettre",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "yes": "Oui",
+    "no": "Non",
+    "chf": "CHF",
+    "perMonth": "/mois",
+    "perYear": "/an"
+  },
+  "nav": {
+    "home": "Accueil",
+    "analyze": "Analyse",
+    "generate": "Créer une lettre",
+    "dashboard": "Tableau de bord",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "logout": "Déconnexion",
+    "impressum": "Mentions légales",
+    "datenschutz": "Confidentialité",
+    "agb": "CGV"
+  },
+  "home": {
+    "title": "Réduisez votre loyer en un clic",
+    "subtitle": "Vérifiez gratuitement si vous avez droit à une réduction de loyer",
+    "hero": {
+      "headline": "Économisez jusqu'à CHF 200 par mois",
+      "subheadline": "Le taux de référence a baissé - demandez votre réduction de loyer maintenant!",
+      "cta": "Vérifier mon bail maintenant"
+    },
+    "features": {
+      "title": "Comment ça fonctionne",
+      "step1": {
+        "title": "Téléverser le contrat",
+        "description": "Téléversez votre bail en PDF ou photo"
+      },
+      "step2": {
+        "title": "Analyse IA",
+        "description": "Notre IA extrait automatiquement toutes les données pertinentes"
+      },
+      "step3": {
+        "title": "Calculer les économies",
+        "description": "Voyez immédiatement combien vous pouvez économiser"
+      },
+      "step4": {
+        "title": "Générer la lettre",
+        "description": "Recevez une demande de réduction de loyer conforme à la loi"
+      }
+    },
+    "pricing": {
+      "title": "Nos services",
+      "service1": {
+        "title": "Analyse du bail",
+        "price": "CHF 20",
+        "description": "Analyse automatique de votre bail avec IA",
+        "features": [
+          "Extraction de données par IA",
+          "Calcul de votre potentiel d'économie",
+          "Validation selon le droit du bail suisse"
+        ]
+      },
+      "service2": {
+        "title": "Création de lettre",
+        "price": "CHF 50",
+        "description": "Demande de réduction de loyer conforme à la loi",
+        "features": [
+          "Toutes les fonctions du Service 1",
+          "Lettre personnalisée en PDF",
+          "Conforme à l'art. 269d CO",
+          "Instructions pour l'envoi"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1": {
+        "question": "Qu'est-ce que le taux de référence?",
+        "answer": "Le taux de référence est un taux d'intérêt hypothécaire moyen publié trimestriellement par l'Office fédéral du logement. Il sert de base pour les ajustements de loyer."
+      },
+      "q2": {
+        "question": "Quand ai-je droit à une réduction de loyer?",
+        "answer": "Vous avez droit à une réduction de loyer si le taux de référence a baissé depuis la signature de votre contrat ou depuis le dernier ajustement de loyer, et si votre propriétaire n'a pas ajusté le loyer en conséquence."
+      },
+      "q3": {
+        "question": "La demande de réduction est-elle juridiquement contraignante?",
+        "answer": "La demande de réduction est basée sur l'art. 270a CO et l'art. 13 OBLF. Le propriétaire doit répondre dans les 30 jours. En cas de refus, vous pouvez contacter l'autorité de conciliation."
+      }
+    }
+  },
+  "analyze": {
+    "title": "Service 1: Analyse du bail",
+    "subtitle": "Téléversez votre bail pour une analyse automatique",
+    "cost": "Coût",
+    "costValue": "CHF 20 (unique)",
+    "upload": {
+      "title": "Analyse automatique avec IA",
+      "description": "Téléversez votre bail (PDF, JPG ou PNG). Notre IA extrait automatiquement:",
+      "features": [
+        "Adresse du logement",
+        "Loyer net (loyer de base sans charges)",
+        "Taux de référence à la signature",
+        "Date du contrat",
+        "Informations sur le propriétaire"
+      ],
+      "dropzone": "Téléverser le bail",
+      "formats": "PDF, JPG ou PNG (max. 10 MB)",
+      "tip": "Astuce: Pour de meilleurs résultats, utilisez un scan lisible"
+    },
+    "form": {
+      "title": "Données du contrat",
+      "autoFilled": "(rempli automatiquement)",
+      "manualHint": "Ou entrez les données manuellement si vous ne souhaitez pas téléverser de contrat.",
+      "checkHint": "Veuillez vérifier les données remplies automatiquement et corriger si nécessaire.",
+      "address": "Adresse du logement",
+      "addressPlaceholder": "ex. Rue Exemple 123, 1000 Lausanne",
+      "netRent": "Loyer net (CHF/mois)",
+      "netRentPlaceholder": "ex. 2000",
+      "netRentHint": "Loyer de base sans charges",
+      "referenceRate": "Taux de référence à la signature (%)",
+      "contractDate": "Date du contrat",
+      "calculate": "Calculer les économies",
+      "calculating": "Calcul en cours..."
+    },
+    "result": {
+      "title": "Votre potentiel d'économie",
+      "currentRent": "Loyer actuel",
+      "newRent": "Nouveau loyer",
+      "monthlyReduction": "Réduction mensuelle",
+      "yearlySavings": "Économie annuelle",
+      "continueToGenerate": "Continuer vers Service 2: Créer la lettre",
+      "dataTransferHint": "Toutes les données seront transférées automatiquement"
+    },
+    "historie": {
+      "title": "Historique des ajustements de loyer",
+      "description": "Téléversez les lettres d'augmentation/réduction ou saisissez les ajustements manuellement.",
+      "uploadDocument": "Téléverser un document",
+      "manualEntry": "Saisie manuelle"
+    },
+    "hints": {
+      "title": "Notes importantes",
+      "hint1": "Le calcul est basé sur l'art. 13 OBLF (Droit du bail)",
+      "hint2": "Le taux de référence actuel est de 1.25% (depuis sept. 2025)",
+      "hint3": "Seuls les baux avec clause de taux de référence sont éligibles",
+      "hint4": "L'analyse IA est un outil - veuillez vérifier les données",
+      "hint5": "Saisissez tous les ajustements précédents pour un calcul plus précis",
+      "hint6": "Toutes les données sont automatiquement transférées au Service 2"
+    }
+  },
+  "generate": {
+    "title": "Service 2: Création de document",
+    "subtitle": "Demande de réduction de loyer conforme - prête à envoyer",
+    "price": "CHF 50",
+    "priceUnit": "unique",
+    "autoFilled": "Données importées automatiquement de l'analyse du bail",
+    "editableHint": "Tous les champs peuvent être modifiés par vous",
+    "tenant": {
+      "title": "Vos données (Locataire)",
+      "fromContract": "(du contrat)",
+      "email": "E-mail",
+      "name": "Votre nom",
+      "namePlaceholder": "Jean Dupont",
+      "address": "Votre adresse",
+      "addressPlaceholder": "Rue Exemple 123",
+      "city": "NPA & Localité",
+      "cityPlaceholder": "1000 Lausanne"
+    },
+    "contract": {
+      "title": "Contrat de bail",
+      "propertyAddress": "Adresse du logement",
+      "propertyAddressPlaceholder": "Rue du Logement 456, 1000 Lausanne",
+      "currentRent": "Loyer actuel (CHF)",
+      "newRent": "Nouveau loyer (CHF)",
+      "newRentHint": "Loyer cible calculé",
+      "referenceRate": "Taux de référence",
+      "contractDate": "Date du contrat",
+      "monthlySavings": "Économie mensuelle",
+      "yearlySavings": "Annuelle"
+    },
+    "landlord": {
+      "title": "Propriétaire",
+      "name": "Nom du propriétaire",
+      "namePlaceholder": "Gestion Immobilière SA",
+      "address": "Adresse",
+      "addressPlaceholder": "Rue de la Gestion 1",
+      "city": "NPA & Localité",
+      "cityPlaceholder": "1000 Lausanne"
+    },
+    "included": {
+      "title": "Ce que vous recevez:",
+      "item1": "Toutes les fonctions du Service 1 (Analyse)",
+      "item2": "Demande de réduction de loyer complète en PDF",
+      "item3": "Conforme à l'art. 13 OBLF",
+      "item4": "Personnalisée avec toutes vos données",
+      "item5": "Prête à imprimer & envoyer",
+      "item6": "Instructions pour l'envoi recommandé"
+    },
+    "cta": "Créer le document pour CHF 50",
+    "success": {
+      "title": "Document créé avec succès!",
+      "subtitle": "Votre demande de réduction de loyer conforme est prête.",
+      "download": "Télécharger le PDF",
+      "nextSteps": {
+        "title": "Prochaines étapes:",
+        "step1": "Imprimer le PDF & le signer",
+        "step2": "Envoyer par courrier recommandé au propriétaire",
+        "step3": "Attendre 30 jours pour la réponse",
+        "step4": "En cas de refus: Contacter l'autorité de conciliation"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte?",
+      "register": "S'inscrire maintenant"
+    },
+    "register": {
+      "title": "Inscription",
+      "name": "Nom",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "S'inscrire",
+      "hasAccount": "Déjà un compte?",
+      "login": "Se connecter"
+    }
+  },
+  "dashboard": {
+    "title": "Mon tableau de bord",
+    "contracts": {
+      "title": "Mes contrats",
+      "empty": "Vous n'avez pas encore analysé de contrats.",
+      "analyze": "Analyser un contrat maintenant"
+    }
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite",
+    "network": "Erreur réseau - veuillez vérifier votre connexion internet",
+    "unauthorized": "Veuillez vous connecter",
+    "notFound": "Non trouvé",
+    "validation": "Veuillez vérifier vos données",
+    "upload": {
+      "tooLarge": "Fichier trop volumineux (max. 10 MB)",
+      "invalidType": "Type de fichier invalide. Autorisés: PDF, JPG, PNG",
+      "failed": "Échec du téléversement"
+    }
+  },
+  "footer": {
+    "copyright": "MietCheck.ch - Tous droits réservés",
+    "legal": "Mentions légales"
+  }
+}

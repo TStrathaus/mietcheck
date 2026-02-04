@@ -1,9 +1,11 @@
-// src/app/layout.tsx (Updated with SEO)
+// src/app/layout.tsx (Updated with SEO & i18n)
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { OrganizationJsonLd, WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -76,13 +78,16 @@ export const metadata: Metadata = {
   category: 'finance',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="de">
+    <html lang={locale}>
       <head>
         <OrganizationJsonLd />
         <WebApplicationJsonLd />
@@ -91,9 +96,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={inter.className}>
-        <Providers>
-          {children}
-        </Providers>
+        <NextIntlClientProvider messages={messages}>
+          <Providers>
+            {children}
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

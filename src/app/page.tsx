@@ -1,11 +1,14 @@
-// src/app/page.tsx (Updated with Login Button)
+// src/app/page.tsx (Updated with Login Button & i18n)
 'use client';
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
+  const t = useTranslations();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -23,6 +26,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               {status === 'loading' ? (
                 <div className="w-20 h-9 bg-gray-200 rounded-lg animate-pulse"></div>
               ) : session ? (
@@ -34,7 +38,7 @@ export default function HomePage() {
                     href="/dashboard"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
-                    📊 Dashboard
+                    📊 {t('nav.dashboard')}
                   </Link>
                 </>
               ) : (
@@ -43,13 +47,13 @@ export default function HomePage() {
                     href="/login"
                     className="text-gray-700 hover:text-gray-900 font-medium hidden sm:inline"
                   >
-                    Anmelden
+                    {t('nav.login')}
                   </Link>
                   <Link
                     href="/login"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
-                    🚀 Kostenlos starten
+                    🚀 {t('home.hero.cta')}
                   </Link>
                 </>
               )}
@@ -62,11 +66,10 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Miete senken in 3 Minuten
+            {t('home.title')}
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Sparen Sie CHF 300-700 pro Jahr bei Referenzzinssatz-Senkung.
-            Automatisch. Legal. Einfach.
+            {t('home.hero.headline')}
           </p>
           
           {session ? (
@@ -102,7 +105,7 @@ export default function HomePage() {
         {/* How it Works */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            So funktioniert's
+            {t('home.features.title')}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -147,7 +150,7 @@ export default function HomePage() {
         {/* Services */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Unsere Services
+            {t('home.pricing.title')}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -323,7 +326,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-            © 2026 MietCheck.ch - Alle Rechte vorbehalten
+            © 2026 {t('footer.copyright')}
           </div>
         </div>
       </footer>
