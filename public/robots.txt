@@ -1,0 +1,11 @@
+# robots.txt for MietCheck.ch
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://mietcheck-nine.vercel.app/sitemap.xml
+
+# Disallow API routes
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard
