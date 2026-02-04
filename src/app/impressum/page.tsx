@@ -22,14 +22,14 @@ export default function ImpressumPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Kontakt</h2>
             <div className="text-gray-700 space-y-2">
               <p><strong>MietCheck.ch</strong></p>
-              <p>Thomas Strathaus</p>
-              {/* TODO: Vor Go-Live echte Adresse eintragen */}
-              <p className="text-amber-600 bg-amber-50 px-2 py-1 rounded">[Adresse vor Go-Live eintragen]</p>
+              <p>Thorsten Strathaus</p>
+              <p>Im Ahorn 14</p>
+              <p>8125 Zollikerberg</p>
               <p>Schweiz</p>
               <p className="mt-4">
                 <strong>E-Mail:</strong>{' '}
-                <a href="mailto:kontakt@mietcheck.ch" className="text-blue-600 hover:underline">
-                  kontakt@mietcheck.ch
+                <a href="mailto:T.Strathaus@mail.ch" className="text-blue-600 hover:underline">
+                  T.Strathaus@mail.ch
                 </a>
               </p>
             </div>
@@ -38,7 +38,7 @@ export default function ImpressumPage() {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Verantwortlich für den Inhalt</h2>
             <p className="text-gray-700">
-              Thomas Strathaus (Anschrift wie oben)
+              Thorsten Strathaus (Anschrift wie oben)
             </p>
           </section>
 
