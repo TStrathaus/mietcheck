@@ -7,6 +7,14 @@
     "src/app/api/process-upload/route.ts": {
       "maxDuration": 60,
       "memory": 1024
+    },
+    "src/app/api/analyze-contract/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "src/app/api/analyze-anpassung/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }
