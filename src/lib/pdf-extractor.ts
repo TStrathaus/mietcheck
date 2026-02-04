@@ -1,8 +1,6 @@
 // src/lib/pdf-extractor.ts
-// Server-side PDF extraction with unpdf (Node.js Runtime)
-// Falls back to Gemini Vision for scanned PDFs or when unpdf fails
-
-import { extractText } from 'unpdf';
+// Server-side PDF extraction - uses Gemini Vision as primary method
+// (unpdf has compatibility issues with Vercel serverless)
 
 export async function extractTextFromPDF(fileUrl: string): Promise<string> {
   try {
@@ -17,31 +15,8 @@ export async function extractTextFromPDF(fileUrl: string): Promise<string> {
     const arrayBuffer = await response.arrayBuffer();
     console.log('📦 PDF size:', arrayBuffer.byteLength, 'bytes');
 
-    try {
-      // Try text extraction with unpdf first
-      const { text, totalPages } = await extractText(arrayBuffer, {
-        mergePages: true,
-      });
-
-      const cleanText = text.trim();
-
-      console.log('📄 PDF extraction with unpdf:', {
-        pages: totalPages || 0,
-        textLength: cleanText.length,
-        preview: cleanText.substring(0, 150) + '...'
-      });
-
-      if (cleanText.length >= 50) {
-        return cleanText;
-      }
-
-      console.warn('⚠️ Extracted text too short, falling back to Gemini Vision OCR');
-    } catch (unpdfError: any) {
-      console.warn('⚠️ unpdf extraction failed, falling back to Gemini Vision:', unpdfError.message);
-    }
-
-    // Fallback: Use Gemini Vision for OCR
-    console.log('🤖 Using Gemini Vision for PDF OCR...');
+    // Use Gemini Vision directly for PDF extraction (more reliable on Vercel)
+    console.log('🤖 Using Gemini Vision for PDF text extraction...');
     return await extractPDFWithGemini(arrayBuffer);
 
   } catch (error: any) {
@@ -55,7 +30,7 @@ export async function extractTextFromPDF(fileUrl: string): Promise<string> {
 }
 
 /**
- * Fallback: Extract text from PDF using Gemini Vision API
+ * Extract text from PDF using Gemini Vision API
  */
 async function extractPDFWithGemini(arrayBuffer: ArrayBuffer): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -65,6 +40,14 @@ async function extractPDFWithGemini(arrayBuffer: ArrayBuffer): Promise<string> {
   }
 
   const base64Data = Buffer.from(arrayBuffer).toString('base64');
+
+  // Check file size - Gemini has limits
+  const fileSizeMB = arrayBuffer.byteLength / (1024 * 1024);
+  console.log('📄 PDF size:', fileSizeMB.toFixed(2), 'MB');
+
+  if (fileSizeMB > 20) {
+    throw new Error('PDF ist zu gross (max. 20 MB)');
+  }
 
   const model = 'models/gemini-2.5-flash';
   const apiUrl = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
@@ -97,17 +80,26 @@ async function extractPDFWithGemini(arrayBuffer: ArrayBuffer): Promise<string> {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Gemini Vision API Error ${response.status}: ${errorText}`);
+    console.error('❌ Gemini API error:', response.status, errorText);
+
+    if (response.status === 429) {
+      throw new Error('KI-Service überlastet. Bitte in einer Minute erneut versuchen.');
+    }
+    if (response.status === 400) {
+      throw new Error('PDF konnte nicht verarbeitet werden. Bitte versuchen Sie eine andere Datei.');
+    }
+
+    throw new Error(`Gemini API Fehler: ${response.status}`);
   }
 
   const data = await response.json();
   const extractedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!extractedText) {
-    throw new Error('Keine Text-Extraktion von Gemini erhalten');
+    throw new Error('Kein Text konnte aus dem PDF extrahiert werden');
   }
 
-  console.log('✅ Gemini Vision PDF OCR successful, length:', extractedText.length);
+  console.log('✅ Gemini Vision PDF extraction successful, length:', extractedText.length);
 
   return extractedText;
 }
