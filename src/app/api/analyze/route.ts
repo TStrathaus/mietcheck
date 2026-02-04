@@ -1,4 +1,4 @@
-// src/app/api/analyze/route.ts (Updated with MietHistorie support)
+// src/app/api/analyze/route.ts (Updated with validation and MietHistorie)
 import { NextRequest, NextResponse } from 'next/server';
 import {
   MietHistorie,
@@ -6,6 +6,10 @@ import {
   berechneMiete,
   berechneEinsparung,
 } from '@/lib/miet-calculator';
+import {
+  validateContractInput,
+  validateDataConsistency,
+} from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,13 +23,45 @@ export async function POST(request: NextRequest) {
       mietHistorie,
     } = body;
 
-    // Validate inputs
+    // Basic required fields check
     if (!address || !currentRent || !currentReferenceRate || !newReferenceRate) {
       return NextResponse.json(
         { error: 'Fehlende Pflichtfelder' },
         { status: 400 }
       );
     }
+
+    // Comprehensive validation with sanity checks
+    const inputValidation = validateContractInput({
+      address,
+      netRent: currentRent,
+      referenceRate: currentReferenceRate,
+      contractDate,
+    });
+
+    if (!inputValidation.valid) {
+      return NextResponse.json(
+        {
+          error: inputValidation.errors[0],
+          validationErrors: inputValidation.errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Consistency checks
+    const consistencyValidation = validateDataConsistency({
+      address,
+      netRent: currentRent,
+      referenceRate: currentReferenceRate,
+      contractDate,
+    });
+
+    // Collect all warnings
+    const allWarnings = [
+      ...inputValidation.warnings,
+      ...consistencyValidation.warnings,
+    ];
 
     // If MietHistorie is provided, use it for more accurate calculation
     if (mietHistorie) {
@@ -68,7 +104,7 @@ export async function POST(request: NextRequest) {
         monthlyReduction,
         yearlySavings,
         validation: {
-          warnings: validation.warnings,
+          warnings: [...allWarnings, ...validation.warnings],
           errors: validation.errors,
         },
         einsparungDetails,
@@ -103,6 +139,10 @@ export async function POST(request: NextRequest) {
       rateDifference,
       percentageChange,
       hasHistory: false,
+      validation: {
+        warnings: allWarnings,
+        errors: [],
+      },
     });
 
   } catch (error: any) {

@@ -316,9 +316,9 @@ export default function HomePage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-gray-400 hover:text-white">Datenschutz</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">AGB</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Impressum</a></li>
+                <li><Link href="/datenschutz" className="text-gray-400 hover:text-white">Datenschutz</Link></li>
+                <li><Link href="/agb" className="text-gray-400 hover:text-white">AGB</Link></li>
+                <li><Link href="/impressum" className="text-gray-400 hover:text-white">Impressum</Link></li>
               </ul>
             </div>
           </div>
