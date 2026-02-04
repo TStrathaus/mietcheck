@@ -7,6 +7,9 @@ export interface ContractData {
   contractDate: string;
   landlordName: string;
   landlordAddress: string;
+  // Mieter-Daten (falls im Vertrag vorhanden)
+  tenantName?: string;
+  tenantAddress?: string;
 }
 
 export async function analyzeContract(extractedText: string): Promise<ContractData> {
@@ -28,11 +31,13 @@ ${extractedText}
 
 Extrahiere:
 1. address: Vollständige Adresse der Mietwohnung (Strasse, PLZ, Ort)
-2. netRent: Nettomiete in CHF (nur die Zahl, ohne CHF)
+2. netRent: Nettomiete/Grundmiete in CHF (nur die Zahl, ohne CHF) - NICHT Bruttomiete oder Gesamtmiete
 3. referenceRate: Referenzzinssatz in Prozent (z.B. 1.25 für 1.25%)
 4. contractDate: Vertragsdatum im Format YYYY-MM-DD
 5. landlordName: Name des Vermieters / der Verwaltung
 6. landlordAddress: Vollständige Adresse des Vermieters (Strasse, PLZ, Ort)
+7. tenantName: Name des Mieters (falls im Vertrag angegeben)
+8. tenantAddress: Adresse des Mieters (normalerweise gleich wie Mietobjekt-Adresse)
 
 Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
 
@@ -42,7 +47,9 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
   "referenceRate": 0,
   "contractDate": "YYYY-MM-DD",
   "landlordName": "Name",
-  "landlordAddress": "Strasse Nr, PLZ Ort"
+  "landlordAddress": "Strasse Nr, PLZ Ort",
+  "tenantName": "Name des Mieters",
+  "tenantAddress": "Strasse Nr, PLZ Ort"
 }`;
 
   const response = await fetch(apiUrl, {
@@ -95,6 +102,8 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
     contractDate: parsedData.contractDate || '',
     landlordName: parsedData.landlordName || '',
     landlordAddress: parsedData.landlordAddress || '',
+    tenantName: parsedData.tenantName || '',
+    tenantAddress: parsedData.tenantAddress || parsedData.address || '', // Fallback auf Mietobjekt
   };
 
   console.log('✅ Contract analysis complete:', contractData);

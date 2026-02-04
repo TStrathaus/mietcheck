@@ -35,34 +35,42 @@ export default function GeneratePage() {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.sessionStorage) {
       const savedData = sessionStorage.getItem('mietCheckData')
-      
+
       if (savedData) {
         try {
           const data = JSON.parse(savedData)
           console.log('📥 Loading data from Service 1:', data)
-          
+
           // Split landlord address
           const landlord = splitAddress(data.contract?.landlordAddress || '')
-          
+
+          // Split tenant address (falls vorhanden)
+          const tenant = splitAddress(data.tenant?.address || data.contract?.address || '')
+
           setFormData(prev => ({
             ...prev,
-            // Property
+            // Tenant (Mieter) - aus Vertrag oder leer für manuelle Eingabe
+            tenantName: data.tenant?.name || '',
+            tenantAddress: tenant.street,
+            tenantCity: tenant.city,
+
+            // Property (Mietobjekt)
             propertyAddress: data.contract?.address || '',
             netRent: data.contract?.netRent?.toString() || '',
             newRent: data.calculation?.newRent?.toFixed(2) || '',
             monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
             referenceRate: data.contract?.referenceRate?.toString() || '',
             contractDate: data.contract?.contractDate || '',
-            
-            // Landlord
+
+            // Landlord (Vermieter)
             landlordName: data.contract?.landlordName || '',
             landlordAddress: landlord.street,
             landlordCity: landlord.city,
           }))
-          
+
           setAutoFilled(true)
           console.log('✅ Auto-filled form from Service 1')
-          
+
         } catch (error) {
           console.error('❌ Error loading Service 1 data:', error)
         }
@@ -127,9 +135,14 @@ export default function GeneratePage() {
                   Rechtssicheres Herabsetzungsbegehren - fertig zum Versand
                 </p>
                 {autoFilled && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✓ Daten automatisch aus Service 1 übernommen
-                  </p>
+                  <div className="mt-2">
+                    <p className="text-sm text-green-600">
+                      ✓ Daten automatisch aus Mietvertrag-Analyse übernommen
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Alle Felder können von Ihnen angepasst werden
+                    </p>
+                  </div>
                 )}
               </div>
               <div className="text-right">
@@ -144,7 +157,10 @@ export default function GeneratePage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center">
                     <span className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-2">1</span>
-                    Deine Daten
+                    Deine Daten (Mieter)
+                    {autoFilled && formData.tenantName && (
+                      <span className="ml-2 text-sm text-green-600">(aus Vertrag)</span>
+                    )}
                   </h3>
 
                   <div className="space-y-4">

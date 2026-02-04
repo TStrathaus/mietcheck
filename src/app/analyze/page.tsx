@@ -72,6 +72,11 @@ export default function AnalyzePage() {
         netRent: parseFloat(formData.netRent),
         referenceRate: parseFloat(formData.currentRate),
       },
+      // Mieter-Daten aus dem Vertrag (falls vorhanden)
+      tenant: {
+        name: contractData?.tenantName || '',
+        address: contractData?.tenantAddress || formData.address, // Fallback auf Mietobjekt
+      },
       calculation: {
         currentRent: result.currentRent,
         newRent: result.newRent,
