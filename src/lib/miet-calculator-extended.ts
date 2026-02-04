@@ -57,9 +57,7 @@ export interface DetailValidation {
   einsparungsPotential?: {
     monatlich: number;
     jaehrlich: number;
-    rueckwirkendAb: string;
-    rueckwirkendMonate: number;
-    nachzahlung: number;
+    naechsterTermin: string;
   };
 }
 
@@ -79,6 +77,52 @@ export const REFERENZZINSSATZ_HISTORIE: ReferenzZinssatz[] = [
   { datum: '2016-09-01', satz: 1.50 },
   { datum: '2015-09-01', satz: 1.75 },
 ];
+
+/**
+ * Berechnet den nächsten möglichen Kündigungstermin (Quartalsende + 3 Monate)
+ * In der Schweiz sind übliche Kündigungstermine: 31.3., 30.6., 30.9., 31.12.
+ */
+export function berechneNaechstenKuendigungstermin(datum: Date): Date {
+  const heute = new Date(datum);
+
+  // Kündigungsfrist: 3 Monate zum Quartalsende
+  // Wir addieren 3 Monate und finden das nächste Quartalsende
+  const inDreiMonaten = new Date(heute);
+  inDreiMonaten.setMonth(inDreiMonaten.getMonth() + 3);
+
+  const monat = inDreiMonaten.getMonth();
+  const jahr = inDreiMonaten.getFullYear();
+
+  // Finde nächstes Quartalsende
+  let kuendigungsTermin: Date;
+
+  if (monat < 3) {
+    // Q1 -> 31. März
+    kuendigungsTermin = new Date(jahr, 2, 31);
+  } else if (monat < 6) {
+    // Q2 -> 30. Juni
+    kuendigungsTermin = new Date(jahr, 5, 30);
+  } else if (monat < 9) {
+    // Q3 -> 30. September
+    kuendigungsTermin = new Date(jahr, 8, 30);
+  } else {
+    // Q4 -> 31. Dezember
+    kuendigungsTermin = new Date(jahr, 11, 31);
+  }
+
+  // Wenn wir schon im Quartalsende-Monat sind, gehe zum nächsten Quartal
+  if (kuendigungsTermin <= inDreiMonaten) {
+    kuendigungsTermin.setMonth(kuendigungsTermin.getMonth() + 3);
+    // Korrigiere Tage für verschiedene Monate
+    if (kuendigungsTermin.getMonth() === 5) {
+      kuendigungsTermin.setDate(30); // Juni
+    } else if (kuendigungsTermin.getMonth() === 8) {
+      kuendigungsTermin.setDate(30); // September
+    }
+  }
+
+  return kuendigungsTermin;
+}
 
 /**
  * Berechnet Miete basierend auf Referenzzinssatz-Änderung
@@ -290,19 +334,14 @@ export function validateMietHistorieDetailed(
       const differenz = aktuelleAnpassung.miete - aktuelleSollMiete;
       
       if (differenz > 1.0) {
-        // Berechne rückwirkende Einsparung
-        const rueckwirkendAb = letzterSchritt.datum;
-        const start = new Date(rueckwirkendAb);
-        const heute = new Date();
-        const monate = Math.floor(
-          (heute.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
-        );
-        const nachzahlung = differenz * monate;
-        
+        // Berechne möglichen Kündigungstermin
+        const zinssenkungDatum = letzterSchritt.datum;
+        const naechsterKuendigungstermin = berechneNaechstenKuendigungstermin(new Date());
+
         kritisch.push(
           `❌ KRITISCH: Nicht-berücksichtigte Zinssenkung!`,
           ``,
-          `Seit ${new Date(rueckwirkendAb).toLocaleDateString('de-CH')} ist der Referenzzins bei ${letzterSchritt.zins}%`,
+          `Seit ${new Date(zinssenkungDatum).toLocaleDateString('de-CH')} ist der Referenzzins bei ${letzterSchritt.zins}%`,
           `Ihre Miete basiert noch auf ${aktuelleAnpassung.referenzzinssatz}%`,
           ``,
           `Differenz: ${(letzterSchritt.zins - aktuelleAnpassung.referenzzinssatz).toFixed(2)}% ` +
@@ -310,15 +349,17 @@ export function validateMietHistorieDetailed(
           `Reduzierung: ${((letzterSchritt.miete - aktuelleAnpassung.miete) / aktuelleAnpassung.miete * 100).toFixed(2)}%`,
           ``,
           `💰 SIE HABEN ANSPRUCH AUF:`,
-          `• Sollmiete: CHF ${aktuelleSollMiete.toFixed(2)}/Monat`,
+          `• Neue Miete: CHF ${aktuelleSollMiete.toFixed(2)}/Monat`,
           `• Aktuelle Miete: CHF ${aktuelleAnpassung.miete.toFixed(2)}/Monat`,
-          `• Reduzierung: CHF ${differenz.toFixed(2)}/Monat`,
-          `• Rückwirkend ab: ${new Date(rueckwirkendAb).toLocaleDateString('de-CH')} (${monate} Monate)`,
-          `• Nachzahlung: CHF ${nachzahlung.toFixed(2)}`
+          `• Monatliche Ersparnis: CHF ${differenz.toFixed(2)}`,
+          `• Jährliche Ersparnis: CHF ${(differenz * 12).toFixed(2)}`,
+          ``,
+          `📅 Nächster möglicher Termin: ${naechsterKuendigungstermin.toLocaleDateString('de-CH')}`,
+          `(Mietsenkung muss mit Herabsetzungsbegehren verlangt werden)`
         );
         
         sollIstVergleiche.push({
-          datum: rueckwirkendAb,
+          datum: zinssenkungDatum,
           sollReferenzzins: letzterSchritt.zins,
           istReferenzzins: aktuelleAnpassung.referenzzinssatz,
           sollMiete: aktuelleSollMiete,
@@ -340,9 +381,7 @@ export function validateMietHistorieDetailed(
           einsparungsPotential: {
             monatlich: differenz,
             jaehrlich: differenz * 12,
-            rueckwirkendAb,
-            rueckwirkendMonate: monate,
-            nachzahlung,
+            naechsterTermin: naechsterKuendigungstermin.toISOString().split('T')[0],
           },
         };
       }
