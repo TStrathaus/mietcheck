@@ -95,7 +95,7 @@ export const LetterWithAttachmentEmail = ({
             Diese Email wurde automatisch generiert.
             <br />
             <br />
-            Bei Fragen erreichen Sie uns unter info@mietcheck.ch
+            Bei Fragen erreichen Sie uns unter info@mietcheck-app.ch
           </Text>
         </Container>
       </Body>

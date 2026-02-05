@@ -80,7 +80,7 @@ export const WelcomeEmail = ({
           <Text style={footer}>
             MietCheck.ch - Ihr Mietrechts-Assistent
             <br />
-            Bei Fragen erreichen Sie uns unter info@mietcheck.ch
+            Bei Fragen erreichen Sie uns unter info@mietcheck-app.ch
           </Text>
         </Container>
       </Body>

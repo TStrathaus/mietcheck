@@ -12,7 +12,7 @@ Das MietCheck.ch Email-System nutzt **Resend** als Email-Service-Provider und **
 
 1. Gehe zu [resend.com](https://resend.com)
 2. Erstelle einen Account
-3. Verifiziere deine Domain (z.B. `mietcheck.ch`)
+3. Verifiziere deine Domain (z.B. `mietcheck-app.ch`)
 4. Generiere einen API Key im Dashboard
 
 ### 2. Environment Variables
@@ -24,18 +24,18 @@ Füge folgende Variablen zu `.env.local` hinzu:
 RESEND_API_KEY="re_xxxxxxxxxxxxx"
 
 # Sender Email (muss mit verifizierter Domain übereinstimmen)
-EMAIL_FROM="noreply@mietcheck.ch"
+EMAIL_FROM="noreply@mietcheck-app.ch"
 
 # Base URL für Links in Emails
-NEXT_PUBLIC_BASE_URL="https://mietcheck.ch"
+NEXT_PUBLIC_BASE_URL="https://mietcheck-app.ch"
 ```
 
 ### 3. Domain Verifizierung
 
-**Wichtig:** Bevor du Emails an echte User senden kannst, muss die Domain `mietcheck.ch` bei Resend verifiziert werden:
+**Wichtig:** Bevor du Emails an echte User senden kannst, muss die Domain `mietcheck-app.ch` bei Resend verifiziert werden:
 
 1. Gehe zu Resend Dashboard → Domains
-2. Füge `mietcheck.ch` hinzu
+2. Füge `mietcheck-app.ch` hinzu
 3. Füge die DNS-Records (SPF, DKIM, DMARC) in deinem Domain-Provider ein
 4. Warte auf Verifizierung (dauert 24-48h)
 
@@ -113,7 +113,7 @@ await sendLetterGeneratedEmail({
   userName: 'Max Mustermann',
   address: 'Musterstrasse 123, 8000 Zürich',
   monthlyReduction: 60,
-  downloadUrl: 'https://mietcheck.ch/download/abc123',
+  downloadUrl: 'https://mietcheck-app.ch/download/abc123',
   contractId: '123', // Optional
 });
 ```
@@ -337,8 +337,8 @@ EMAIL_FROM="onboarding@resend.dev"  # Resend Test-Adresse
 ```bash
 # .env.production
 RESEND_API_KEY="re_xxxxx"
-EMAIL_FROM="noreply@mietcheck.ch"  # Verifizierte Domain
-NEXT_PUBLIC_BASE_URL="https://mietcheck.ch"
+EMAIL_FROM="noreply@mietcheck-app.ch"  # Verifizierte Domain
+NEXT_PUBLIC_BASE_URL="https://mietcheck-app.ch"
 ```
 
 ---
@@ -363,7 +363,7 @@ export const MyEmail = ({ userName }: { userName: string }) => (
       <Container>
         <Heading>Hallo {userName}</Heading>
         <Text>Dein Text hier</Text>
-        <Button href="https://mietcheck.ch">
+        <Button href="https://mietcheck-app.ch">
           Call to Action
         </Button>
       </Container>

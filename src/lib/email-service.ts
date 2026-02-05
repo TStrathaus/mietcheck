@@ -10,8 +10,8 @@ import WelcomeEmail from '@/emails/welcome';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email sender configuration
-const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@mietcheck.ch';
-const FROM_NAME = 'MietCheck.ch';
+const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@mietcheck-app.ch';
+const FROM_NAME = 'MietCheck';
 
 export type EmailType =
   | 'analysis-complete'
@@ -75,7 +75,7 @@ export async function sendEmail(emailData: EmailData) {
     const { type, data } = emailData;
     let subject: string;
     let html: string;
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://mietcheck.ch';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://mietcheck-app.ch';
 
     switch (type) {
       case 'analysis-complete': {
