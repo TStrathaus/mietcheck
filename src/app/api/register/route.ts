@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser, createContract, getUser } from '@/lib/db';
+import { sendWelcomeEmail } from '@/lib/email-service';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
@@ -40,7 +41,17 @@ export async function POST(request: NextRequest) {
       landlordAddress: '',
     });
 
-    // TODO: Send welcome email via Resend
+    // Send welcome email (async, don't block registration)
+    if (!existingUser) {
+      sendWelcomeEmail({
+        to: email,
+        userName: name,
+        userEmail: email,
+      }).catch((error) => {
+        console.error('Failed to send welcome email:', error);
+        // Don't fail registration if email fails
+      });
+    }
 
     return NextResponse.json({
       success: true,
