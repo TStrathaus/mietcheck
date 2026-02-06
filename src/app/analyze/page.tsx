@@ -27,6 +27,21 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Convert date from DD.MM.YYYY to YYYY-MM-DD if needed
+  const normalizeDateFormat = (date: string): string => {
+    // If already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return date;
+    }
+    // If in DD.MM.YYYY format
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(date)) {
+      const [day, month, year] = date.split('.');
+      return `${year}-${month}-${day}`;
+    }
+    // Return as-is if unknown format
+    return date;
+  };
+
   // Handle analysis completion from FileUpload
   const handleAnalysisComplete = (data: ContractData) => {
     console.log('📊 Auto-filling form with analyzed data:', data);
@@ -34,12 +49,12 @@ export default function AnalyzePage() {
     // Save complete contract data
     setContractData(data);
 
-    // Auto-fill form fields
+    // Auto-fill form fields with normalized date
     setFormData({
       address: data.address,
       netRent: data.netRent.toString(),
       currentRate: data.referenceRate.toString(),
-      contractDate: data.contractDate,
+      contractDate: normalizeDateFormat(data.contractDate),
     });
 
     // Show MietHistorie component
