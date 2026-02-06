@@ -13,7 +13,7 @@ export async function setupDatabase() {
       );
     `;
 
-    // Create contracts table
+    // Create contracts table with extended fields
     await sql`
       CREATE TABLE IF NOT EXISTS contracts (
         id SERIAL PRIMARY KEY,
@@ -24,11 +24,26 @@ export async function setupDatabase() {
         contract_date DATE,
         landlord_name VARCHAR(255),
         landlord_address VARCHAR(500),
+        tenant_name VARCHAR(255),
+        tenant_address VARCHAR(500),
+        new_rent DECIMAL(10,2),
+        monthly_reduction DECIMAL(10,2),
+        yearly_savings DECIMAL(10,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
 
-    // Create transactions table with Stripe support
+    // Migration: Add new columns if they don't exist
+    await sql`
+      ALTER TABLE contracts
+      ADD COLUMN IF NOT EXISTS tenant_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS tenant_address VARCHAR(500),
+      ADD COLUMN IF NOT EXISTS new_rent DECIMAL(10,2),
+      ADD COLUMN IF NOT EXISTS monthly_reduction DECIMAL(10,2),
+      ADD COLUMN IF NOT EXISTS yearly_savings DECIMAL(10,2);
+    `;
+
+    // Create transactions table
     await sql`
       CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY,
@@ -36,20 +51,8 @@ export async function setupDatabase() {
         contract_id INTEGER REFERENCES contracts(id) ON DELETE CASCADE,
         service_type VARCHAR(50),
         amount DECIMAL(10,2),
-        stripe_session_id VARCHAR(255) UNIQUE,
+        stripe_session_id VARCHAR(255),
         status VARCHAR(50) DEFAULT 'pending',
-        paid_at TIMESTAMP,
-        metadata JSONB,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
-
-    // Create payment_failures table for analytics
-    await sql`
-      CREATE TABLE IF NOT EXISTS payment_failures (
-        id SERIAL PRIMARY KEY,
-        stripe_payment_intent_id VARCHAR(255),
-        error_message TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
@@ -81,53 +84,27 @@ export async function createContract(userId: number, data: any) {
   const result = await sql`
     INSERT INTO contracts (
       user_id, address, net_rent, reference_rate, contract_date,
-      landlord_name, landlord_address
+      landlord_name, landlord_address, tenant_name, tenant_address,
+      new_rent, monthly_reduction, yearly_savings
     )
     VALUES (
       ${userId}, ${data.address}, ${data.netRent}, ${data.referenceRate},
-      ${data.contractDate}, ${data.landlordName}, ${data.landlordAddress}
+      ${data.contractDate}, ${data.landlordName || ''}, ${data.landlordAddress || ''},
+      ${data.tenantName || ''}, ${data.tenantAddress || ''},
+      ${data.newRent || null}, ${data.monthlyReduction || null}, ${data.yearlySavings || null}
     )
     RETURNING *;
   `;
   return result.rows[0];
 }
 
-export async function createTransaction(
-  userId: number,
-  contractId: number | null,
-  serviceType: string,
-  amount: number,
-  stripeSessionId?: string
-) {
+export async function createTransaction(userId: number, contractId: number, serviceType: string, amount: number) {
   const result = await sql`
-    INSERT INTO transactions (user_id, contract_id, service_type, amount, stripe_session_id, status)
-    VALUES (${userId}, ${contractId}, ${serviceType}, ${amount}, ${stripeSessionId || null}, 'pending')
+    INSERT INTO transactions (user_id, contract_id, service_type, amount, status)
+    VALUES (${userId}, ${contractId}, ${serviceType}, ${amount}, 'completed')
     RETURNING *;
   `;
   return result.rows[0];
-}
-
-export async function updateTransactionStatus(
-  stripeSessionId: string,
-  status: string,
-  paidAt?: Date
-) {
-  const paidAtISO = paidAt ? paidAt.toISOString() : null;
-  const result = await sql`
-    UPDATE transactions
-    SET status = ${status},
-        paid_at = ${paidAtISO}
-    WHERE stripe_session_id = ${stripeSessionId}
-    RETURNING *;
-  `;
-  return result.rows[0];
-}
-
-export async function getTransactionBySessionId(stripeSessionId: string) {
-  const result = await sql`
-    SELECT * FROM transactions WHERE stripe_session_id = ${stripeSessionId} LIMIT 1;
-  `;
-  return result.rows[0] || null;
 }
 
 export async function getUserContracts(userId: number) {
@@ -137,9 +114,32 @@ export async function getUserContracts(userId: number) {
   return result.rows;
 }
 
-export async function getUserTransactions(userId: number) {
+export async function getContractById(contractId: number, userId: number) {
   const result = await sql`
-    SELECT * FROM transactions WHERE user_id = ${userId} ORDER BY created_at DESC;
+    SELECT * FROM contracts
+    WHERE id = ${contractId} AND user_id = ${userId}
+    LIMIT 1;
   `;
-  return result.rows;
+  return result.rows[0] || null;
+}
+
+export async function updateContract(contractId: number, userId: number, data: any) {
+  const result = await sql`
+    UPDATE contracts
+    SET
+      address = ${data.address},
+      net_rent = ${data.netRent},
+      reference_rate = ${data.referenceRate},
+      contract_date = ${data.contractDate},
+      landlord_name = ${data.landlordName || ''},
+      landlord_address = ${data.landlordAddress || ''},
+      tenant_name = ${data.tenantName || ''},
+      tenant_address = ${data.tenantAddress || ''},
+      new_rent = ${data.newRent || null},
+      monthly_reduction = ${data.monthlyReduction || null},
+      yearly_savings = ${data.yearlySavings || null}
+    WHERE id = ${contractId} AND user_id = ${userId}
+    RETURNING *;
+  `;
+  return result.rows[0] || null;
 }

@@ -31,43 +31,84 @@ export default function GeneratePage() {
     landlordCity: '',
   })
 
-  // Auto-fill from sessionStorage (Service 1 data)
+  // Auto-fill from database or sessionStorage
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const savedData = sessionStorage.getItem('mietCheckData')
-      
-      if (savedData) {
+    const loadData = async () => {
+      // Try to get contractId from URL
+      const params = new URLSearchParams(window.location.search);
+      const contractId = params.get('contractId');
+
+      // Priority 1: Load from database if contractId is available
+      if (contractId) {
         try {
-          const data = JSON.parse(savedData)
-          console.log('📥 Loading data from Service 1:', data)
-          
-          // Split landlord address
-          const landlord = splitAddress(data.contract?.landlordAddress || '')
-          
-          setFormData(prev => ({
-            ...prev,
-            // Property
-            propertyAddress: data.contract?.address || '',
-            netRent: data.contract?.netRent?.toString() || '',
-            newRent: data.calculation?.newRent?.toFixed(2) || '',
-            monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
-            referenceRate: data.contract?.referenceRate?.toString() || '',
-            contractDate: data.contract?.contractDate || '',
-            
-            // Landlord
-            landlordName: data.contract?.landlordName || '',
-            landlordAddress: landlord.street,
-            landlordCity: landlord.city,
-          }))
-          
-          setAutoFilled(true)
-          console.log('✅ Auto-filled form from Service 1')
-          
+          console.log('📥 Loading contract from DB, ID:', contractId);
+          const response = await fetch(`/api/user/contracts/${contractId}`);
+
+          if (response.ok) {
+            const { contract } = await response.json();
+            console.log('✅ Loaded from DB:', contract);
+
+            // Split landlord address
+            const landlord = splitAddress(contract.landlord_address || '');
+
+            setFormData(prev => ({
+              ...prev,
+              propertyAddress: contract.address || '',
+              netRent: contract.net_rent?.toString() || '',
+              newRent: contract.new_rent?.toFixed(2) || '',
+              monthlyReduction: contract.monthly_reduction?.toFixed(2) || '',
+              referenceRate: contract.reference_rate?.toString() || '',
+              contractDate: contract.contract_date || '',
+              landlordName: contract.landlord_name || '',
+              landlordAddress: landlord.street,
+              landlordCity: landlord.city,
+              tenantName: contract.tenant_name || '',
+              tenantAddress: contract.tenant_address || '',
+            }));
+
+            setAutoFilled(true);
+            return; // Exit early if DB load successful
+          }
         } catch (error) {
-          console.error('❌ Error loading Service 1 data:', error)
+          console.log('ℹ️ Could not load from DB, trying sessionStorage:', error);
         }
       }
-    }
+
+      // Priority 2: Fallback to sessionStorage
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const savedData = sessionStorage.getItem('mietCheckData');
+
+        if (savedData) {
+          try {
+            const data = JSON.parse(savedData);
+            console.log('📥 Loading data from sessionStorage:', data);
+
+            // Split landlord address
+            const landlord = splitAddress(data.contract?.landlordAddress || '');
+
+            setFormData(prev => ({
+              ...prev,
+              propertyAddress: data.contract?.address || '',
+              netRent: data.contract?.netRent?.toString() || '',
+              newRent: data.calculation?.newRent?.toFixed(2) || '',
+              monthlyReduction: data.calculation?.monthlyReduction?.toFixed(2) || '',
+              referenceRate: data.contract?.referenceRate?.toString() || '',
+              contractDate: data.contract?.contractDate || '',
+              landlordName: data.contract?.landlordName || '',
+              landlordAddress: landlord.street,
+              landlordCity: landlord.city,
+            }));
+
+            setAutoFilled(true);
+            console.log('✅ Auto-filled form from sessionStorage');
+          } catch (error) {
+            console.error('❌ Error loading sessionStorage data:', error);
+          }
+        }
+      }
+    };
+
+    loadData();
   }, [])
 
   const handlePayment = async () => {
