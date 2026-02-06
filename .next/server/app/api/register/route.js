@@ -1,0 +1,17 @@
+(()=>{var e={};e.id=569,e.ids=[569],e.modules={20399:e=>{"use strict";e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},30517:e=>{"use strict";e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},78893:e=>{"use strict";e.exports=require("buffer")},84770:e=>{"use strict";e.exports=require("crypto")},17702:e=>{"use strict";e.exports=require("events")},92048:e=>{"use strict";e.exports=require("fs")},32615:e=>{"use strict";e.exports=require("http")},35240:e=>{"use strict";e.exports=require("https")},98216:e=>{"use strict";e.exports=require("net")},19801:e=>{"use strict";e.exports=require("os")},55315:e=>{"use strict";e.exports=require("path")},76162:e=>{"use strict";e.exports=require("stream")},82452:e=>{"use strict";e.exports=require("tls")},17360:e=>{"use strict";e.exports=require("url")},71568:e=>{"use strict";e.exports=require("zlib")},93739:()=>{},27792:(e,r,t)=>{"use strict";t.r(r),t.d(r,{originalPathname:()=>q,patchFetch:()=>w,requestAsyncStorage:()=>h,routeModule:()=>g,serverHooks:()=>f,staticGenerationAsyncStorage:()=>R});var s={};t.r(s),t.d(s,{POST:()=>m});var i=t(49303),a=t(88716),n=t(60670),o=t(87070),u=t(86923);async function c(e){return(await (0,u.i6)`
+    SELECT * FROM users WHERE email = ${e} LIMIT 1;
+  `).rows[0]||null}async function d(e,r,t){return(await (0,u.i6)`
+    INSERT INTO users (email, password_hash, name)
+    VALUES (${e}, ${r}, ${t||""})
+    RETURNING id, email, name, created_at;
+  `).rows[0]}async function l(e,r){return(await (0,u.i6)`
+    INSERT INTO contracts (
+      user_id, address, net_rent, reference_rate, contract_date,
+      landlord_name, landlord_address
+    )
+    VALUES (
+      ${e}, ${r.address}, ${r.netRent}, ${r.referenceRate},
+      ${r.contractDate}, ${r.landlordName}, ${r.landlordAddress}
+    )
+    RETURNING *;
+  `).rows[0]}var p=t(42023),x=t.n(p);async function m(e){try{let r;let{email:t,name:s,address:i,netRent:a,referenceRate:n,contractDate:u}=await e.json();if(!t||!i||!a||!n||!u)return o.NextResponse.json({error:"Alle Pflichtfelder m\xfcssen ausgef\xfcllt werden"},{status:400});let p=await c(t);if(p)r=p.id;else{let e=Math.random().toString(36).slice(-8),i=await x().hash(e,10);r=(await d(t,i,s)).id}return await l(r,{address:i,netRent:parseFloat(a),referenceRate:parseFloat(n),contractDate:u,landlordName:"",landlordAddress:""}),o.NextResponse.json({success:!0,message:"Registrierung erfolgreich! Du erh\xe4ltst eine E-Mail sobald der Referenzzinssatz sinkt."})}catch(e){return console.error("Registration error:",e),o.NextResponse.json({error:"Fehler bei der Registrierung: "+e.message},{status:500})}}let g=new i.AppRouteRouteModule({definition:{kind:a.x.APP_ROUTE,page:"/api/register/route",pathname:"/api/register",filename:"route",bundlePath:"app/api/register/route"},resolvedPagePath:"D:\\STTH\\2026 KI\\mietcheck\\src\\app\\api\\register\\route.ts",nextConfigOutput:"",userland:s}),{requestAsyncStorage:h,staticGenerationAsyncStorage:R,serverHooks:f}=g,q="/api/register/route";function w(){return(0,n.patchFetch)({serverHooks:f,staticGenerationAsyncStorage:R})}}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),s=r.X(0,[948,972,923,946],()=>t(27792));module.exports=s})();

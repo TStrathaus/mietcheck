@@ -1,8 +1,9 @@
-// src/app/page.tsx (Updated with Login Button)
+// src/app/page.tsx (Updated with Login Button and Language Switcher)
 'use client';
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -23,6 +24,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               {status === 'loading' ? (
                 <div className="w-20 h-9 bg-gray-200 rounded-lg animate-pulse"></div>
               ) : session ? (
