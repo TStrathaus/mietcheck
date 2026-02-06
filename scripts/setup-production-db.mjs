@@ -3,7 +3,9 @@
 // Usage: node scripts/setup-production-db.mjs
 
 // Set production database URL before importing
-process.env.POSTGRES_URL = 'postgresql://neondb_owner:PASSWORD_REMOVED@ep-divine-wind-ab1u32a5-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+// IMPORTANT: Never commit actual credentials to git!
+// Get this from: console.neon.tech → your project → Connection Details
+process.env.POSTGRES_URL = process.env.POSTGRES_URL || 'YOUR_POSTGRES_URL_HERE';
 
 import { sql } from '@vercel/postgres';
 
