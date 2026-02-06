@@ -503,8 +503,8 @@
 
 ## 🎯 CURRENT SPRINT
 
-**Focus:** Phase 1 - Critical Functions
-**Timeline:** Week 1-2
+**Focus:** Pre-Launch Critical Path
+**Timeline:** Week 2-3 (vor Go-Live)
 
 **Completed:**
 1. [x] Brief-Generierung implementieren ✅
@@ -513,13 +513,196 @@
 4. [x] Legal & Compliance (Impressum) ✅
 5. [x] Datenbank-Persistenz ✅
 6. [x] Datenübertragung Analyze → Generate ✅
+7. [x] Multi-Language Support (DE/FR/IT/EN) ✅
+8. [x] Email System (Resend + React Email) ✅
 
-**This Week:**
-7. [ ] Validierung & Edge Cases
-8. [ ] Dashboard verbessern
+---
 
-**Before Go-Live:**
-9. [ ] Payrexx Payment Integration (statt Stripe)
+## 🚀 NÄCHSTE SCHRITTE (Priorisiert für Go-Live)
+
+### **WOCHE 1: Pre-Launch Critical Tasks**
+
+#### **1. Validierung & Edge Cases (Task 4)** ⭐⭐⭐ HÖCHSTE PRIORITÄT
+**Status:** ❌ Not Started
+**Estimated Time:** 3-4 hours
+**Reason:** Verhindert schlechte UX beim Launch, findet Bugs vor echten Kunden
+
+**Konkrete Schritte:**
+- [ ] 10-20 echte Mietverträge testen (verschiedene Formate, Alter, Qualität)
+- [ ] Edge Cases dokumentieren:
+  - [ ] Sehr alter Vertrag (vor 2015)
+  - [ ] Handgeschriebener Vertrag (schlechte OCR-Qualität)
+  - [ ] Nicht-Standard Format (z.B. Excel, Word)
+  - [ ] Vertrag ohne Referenzzins-Klausel → Warning anzeigen
+  - [ ] Gewerberaum (sollte abgelehnt werden)
+  - [ ] WG mit mehreren Mietern (Name1 & Name2)
+  - [ ] Unmögliche Werte (Miete < CHF 100 oder > CHF 20'000)
+- [ ] Fehlermeldungen verbessern wenn Extraktion fehlschlägt
+- [ ] User kann manuelle Korrektur vornehmen
+- [ ] Sanity Checks implementieren für:
+  - [ ] Miete (CHF 100 - 20'000)
+  - [ ] Referenzzinssatz (0.25% - 4%)
+  - [ ] Datum (1990 - heute)
+- [ ] Warnung bei "kein Herabsetzungsanspruch" (z.B. Rate gestiegen)
+
+**Acceptance Criteria:**
+- 90%+ der Standard-Verträge werden korrekt extrahiert
+- Edge Cases zeigen hilfreiche Fehlermeldungen
+- User kann bei Fehlern manuell korrigieren
+
+---
+
+#### **2. Payrexx Payment Integration (Task 2)** ⭐⭐⭐ GO-LIVE BLOCKER
+**Status:** 🔄 PENDING
+**Estimated Time:** 2-3 hours
+**Reason:** Ohne Payment keine Einnahmen, TWINT ist kritisch für CH-Markt
+
+**Konkrete Schritte:**
+- [ ] Payrexx Account erstellen (payrexx.com)
+- [ ] API Keys holen (Instance Name + API Secret)
+- [ ] Test-Modus konfigurieren
+- [ ] Stripe-Code in `/api/create-checkout` auf Payrexx umbauen
+- [ ] Success/Cancel Pages anpassen
+- [ ] Webhook in `/api/webhook/payrexx` implementieren
+- [ ] TWINT aktivieren und testen
+- [ ] Kreditkarte testen
+- [ ] Error Handling für fehlgeschlagene Payments
+- [ ] Transaction-Status in DB schreiben
+- [ ] Email nach erfolgreichem Payment senden
+
+**Test Scenarios:**
+- [ ] TWINT Payment (Schweizer Standard)
+- [ ] Kreditkarte Payment
+- [ ] Abgebrochener Payment
+- [ ] Fehlgeschlagener Payment
+- [ ] Webhook-Empfang und Verarbeitung
+
+**Acceptance Criteria:**
+- User kann mit TWINT und Kreditkarte bezahlen
+- Nach Payment wird Transaction in DB gespeichert
+- User erhält Email-Bestätigung
+- Brief-Download wird freigeschaltet
+
+---
+
+#### **3. Beta Testing mit 5-10 Usern** ⭐⭐
+**Status:** ❌ Not Started
+**Estimated Time:** 1 hour Setup + 2-3 Tage Feedback sammeln
+**Reason:** Echtes User-Feedback vor öffentlichem Launch
+
+**Konkrete Schritte:**
+- [ ] 5-10 Beta-Tester rekrutieren (Freunde, Familie, Kollegen)
+- [ ] Beta-Testing Instruktionen erstellen
+- [ ] Feedback-Formular vorbereiten (Google Forms / Typeform)
+- [ ] User durch kompletten Flow führen lassen
+- [ ] Bugs sammeln und priorisieren
+- [ ] UX-Probleme identifizieren
+- [ ] Performance-Issues dokumentieren
+
+**Feedback-Punkte:**
+- Wie verständlich ist der Upload-Flow?
+- War die Extraktion korrekt?
+- Ist der Brief verständlich und verwendbar?
+- Würden Sie dafür CHF 20 bezahlen?
+- Was fehlt oder verwirrt?
+
+---
+
+### **WOCHE 2: Launch-Vorbereitung**
+
+#### **4. Dashboard vervollständigen (Task 7)** ⭐⭐
+**Status:** 🔄 PARTIAL
+**Estimated Time:** 2-3 hours
+**Reason:** Bessere User-Experience, erhöht Retention
+
+**Konkrete Schritte:**
+- [ ] Re-Download von bezahlten Briefen ermöglichen
+- [ ] Status-Tracking hinzufügen:
+  - [ ] "Entwurf" (noch nicht bezahlt)
+  - [ ] "Bereit zum Versand" (bezahlt)
+  - [ ] "Versendet" (User hat versendet)
+  - [ ] "Antwort erhalten" (User-Update)
+  - [ ] "In Schlichtung" (falls nötig)
+- [ ] Timeline-View der Verträge
+- [ ] Notizen-Funktion für jeden Vertrag
+- [ ] Filter: "Alle" / "Aktiv" / "Abgeschlossen"
+
+---
+
+#### **5. Monitoring & Backup (Task 15 & 18)** ⭐⭐⭐
+**Status:** ❌ Not Started
+**Estimated Time:** 2-3 hours
+**Reason:** Must-have für Production, verhindert Datenverlust
+
+**Konkrete Schritte:**
+- [ ] Vercel Postgres Backup konfigurieren (automatisch täglich)
+- [ ] Vercel Blob Backup (Download-Links zu PDFs)
+- [ ] UptimeRobot einrichten (Uptime Monitoring)
+- [ ] Sentry einrichten (Error Tracking)
+- [ ] Slack/Email Alerts bei Downtime
+- [ ] Rate Limiting auf API-Routes (100 req/min)
+- [ ] Security Headers prüfen (CSP, HSTS, etc.)
+
+**Acceptance Criteria:**
+- Automatische tägliche Backups
+- Alerts bei Downtime innerhalb 5 Minuten
+- Alle API-Errors werden in Sentry geloggt
+
+---
+
+#### **6. Analytics & Tracking (Task 8)** ⭐
+**Status:** ❌ Not Started
+**Estimated Time:** 1-2 hours
+**Reason:** Tracking von Anfang an, um Conversion zu messen
+
+**Konkrete Schritte:**
+- [ ] Plausible Analytics integrieren (DSGVO-konform, kein Cookie-Banner nötig)
+- [ ] Oder: Google Analytics 4 mit Cookie Consent
+- [ ] Events tracken:
+  - [ ] Page Views
+  - [ ] Upload Started
+  - [ ] Analysis Completed
+  - [ ] Letter Generated
+  - [ ] Payment Initiated
+  - [ ] Payment Completed
+  - [ ] Download Letter
+- [ ] Conversion Funnel Setup
+- [ ] UTM Parameter für Marketing
+
+---
+
+### **NICE-TO-HAVE (nach Launch):**
+
+#### **7. Performance Optimization (Task 12)** ⭐
+- [ ] Lighthouse Score > 90
+- [ ] Image Optimization
+- [ ] Bundle Size Reduction
+- [ ] CDN für Static Assets
+
+#### **8. Advanced Dashboard Features** ⭐
+- [ ] Export als Excel/CSV
+- [ ] Print-ready Übersicht
+- [ ] Statistiken (Gesamtersparnis, Anzahl Verträge, etc.)
+
+---
+
+### **ZUSAMMENFASSUNG - LAUNCH KRITISCHER PFAD:**
+
+**Diese Woche (vor Go-Live):**
+1. ✅ **Validierung & Edge Cases** (3-4h) - JETZT starten
+2. ✅ **Payrexx Payment** (2-3h) - Danach
+3. ✅ **Beta Testing** (1h Setup) - Parallel
+
+**Nächste Woche (Launch-Vorbereitung):**
+4. ✅ **Dashboard vervollständigen** (2-3h)
+5. ✅ **Monitoring & Backup** (2-3h)
+6. ✅ **Analytics** (1-2h)
+
+**Total Time vor Go-Live:** ~12-16 Stunden
+
+**Nach Launch:**
+7. Performance Optimization
+8. Advanced Dashboard Features
 
 ---
 
