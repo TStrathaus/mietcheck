@@ -16,7 +16,8 @@ export default async function DashboardPage() {
   let contracts: any[] = [];
   try {
     const result = await sql`
-      SELECT id, address, net_rent, reference_rate, contract_date, created_at
+      SELECT id, address, net_rent, new_rent, reference_rate, contract_date,
+             created_at, monthly_reduction, yearly_savings
       FROM contracts
       WHERE user_id = ${session.user.id}
       ORDER BY created_at DESC
@@ -146,6 +147,23 @@ export default async function DashboardPage() {
                           🕒 Analysiert: <span className="font-medium">{new Date(contract.created_at).toLocaleDateString('de-CH')}</span>
                         </div>
                       </div>
+                      {contract.yearly_savings && parseFloat(contract.yearly_savings) > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">💰</span>
+                              <div>
+                                <div className="text-green-800 font-semibold">
+                                  Einsparpotenzial: CHF {parseFloat(contract.yearly_savings).toFixed(2)} / Jahr
+                                </div>
+                                <div className="text-green-700 text-xs">
+                                  Monatliche Reduktion: CHF {parseFloat(contract.monthly_reduction).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <Link
                       href={`/generate?contractId=${contract.id}`}
