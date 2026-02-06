@@ -29,6 +29,9 @@ export default function GeneratePage() {
     landlordName: '',
     landlordAddress: '',
     landlordCity: '',
+
+    // Letter Language
+    letterLanguage: 'de', // Default: Deutsch
   })
 
   // Auto-fill from database or sessionStorage
@@ -235,6 +238,23 @@ export default function GeneratePage() {
                           placeholder="8000 Zürich"
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="label">Sprache des Briefes / Langue de la lettre / Lingua della lettera *</label>
+                      <select
+                        className="input"
+                        value={formData.letterLanguage}
+                        onChange={e => setFormData({...formData, letterLanguage: e.target.value})}
+                        required
+                      >
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                      </select>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Wählen Sie die Sprache für den Herabsetzungsbrief. Diese ist unabhängig von der Sprache der Benutzeroberfläche.
+                      </p>
                     </div>
                   </div>
                 </div>

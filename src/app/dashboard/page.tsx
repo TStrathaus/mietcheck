@@ -10,9 +10,14 @@ interface Contract {
   id: number;
   address: string;
   net_rent: number;
+  new_rent?: number;
+  monthly_reduction?: number;
+  yearly_savings?: number;
   reference_rate: number;
   contract_date: string;
   created_at: string;
+  tenant_name?: string;
+  landlord_name?: string;
 }
 
 interface Transaction {
@@ -206,12 +211,19 @@ export default function DashboardPage() {
                           Hinzugefügt: {new Date(contract.created_at).toLocaleDateString('de-CH')}
                         </p>
                       </div>
-                      <span className="text-blue-600 font-bold">
-                        CHF {contract.net_rent.toFixed(2)}
-                      </span>
+                      <div className="text-right">
+                        <p className="text-blue-600 font-bold">
+                          CHF {contract.net_rent.toFixed(2)}
+                        </p>
+                        {contract.monthly_reduction && contract.monthly_reduction > 0 && (
+                          <p className="text-green-600 text-sm font-medium">
+                            -CHF {contract.monthly_reduction.toFixed(2)}/Monat
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+
+                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                       <div>
                         <p className="text-gray-600">Referenzzinssatz</p>
                         <p className="font-medium">{contract.reference_rate}%</p>
@@ -223,6 +235,25 @@ export default function DashboardPage() {
                         </p>
                       </div>
                     </div>
+
+                    {contract.new_rent && contract.yearly_savings && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-gray-600">Neue Miete</p>
+                            <p className="font-bold text-green-700">
+                              CHF {contract.new_rent.toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Jahresersparnis</p>
+                            <p className="font-bold text-green-700">
+                              CHF {contract.yearly_savings.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <Link
