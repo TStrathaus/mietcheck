@@ -45,7 +45,8 @@ export default function MietHistorieExtended({
   const [uploading, setUploading] = useState(false);
   const [analyzedData, setAnalyzedData] = useState<AnalyzeResult | null>(null);
   const [blobUrl, setBlobUrl] = useState<string>('');
-  
+  const [dragActive, setDragActive] = useState(false);
+
   // Manual form state
   const [newDatum, setNewDatum] = useState('');
   const [newZins, setNewZins] = useState('');
@@ -97,7 +98,7 @@ export default function MietHistorieExtended({
         access: 'public',
         handleUploadUrl: '/api/upload-url',
       });
-      
+
       setBlobUrl(blob.url);
       console.log('✅ Upload successful:', blob.url);
 
@@ -115,14 +116,72 @@ export default function MietHistorieExtended({
 
       const result = await analyzeResponse.json();
       console.log('✅ Analysis complete:', result);
-      
+
       setAnalyzedData(result.data);
-      
+
     } catch (error: any) {
       console.error('❌ Upload/Analysis error:', error);
       alert('Fehler: ' + error.message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const input = document.getElementById('anpassung-file-upload') as HTMLInputElement;
+      if (input) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(files[0]);
+        input.files = dataTransfer.files;
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+      }
+    }
+  };
+
+  // Function to determine status label based on changes
+  const getStatusLabel = (index: number, currentMiete: number, previousMiete: number | null): { label: string; color: string } => {
+    if (index === -1) {
+      return { label: '🏠 Mietbeginn', color: 'text-blue-700' };
+    }
+
+    if (previousMiete === null) {
+      return { label: '📝 Anpassung', color: 'text-gray-600' };
+    }
+
+    const diff = currentMiete - previousMiete;
+
+    if (diff > 0) {
+      return {
+        label: `📈 Erhöhung (+${diff.toFixed(2)} CHF)`,
+        color: 'text-red-700'
+      };
+    } else if (diff < 0) {
+      return {
+        label: `📉 Mietreduzierung (${diff.toFixed(2)} CHF)`,
+        color: 'text-green-700'
+      };
+    } else {
+      return { label: '➡️ Keine Änderung', color: 'text-gray-600' };
     }
   };
 
@@ -250,21 +309,54 @@ export default function MietHistorieExtended({
       {showUploadModal && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4">
           <h4 className="font-bold text-gray-900">📄 Anpassungs-Dokument hochladen</h4>
-          
+
           {!analyzedData ? (
             <div>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
-              {uploading && (
-                <p className="text-sm text-green-600 mt-2">
-                  ⏳ Wird analysiert...
-                </p>
-              )}
+              <div
+                className={`
+                  border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200
+                  ${uploading
+                    ? 'border-green-300 bg-green-100'
+                    : dragActive
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-blue-500'
+                  }
+                `}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileSelect}
+                  disabled={uploading}
+                  className="hidden"
+                  id="anpassung-file-upload"
+                />
+                <label
+                  htmlFor="anpassung-file-upload"
+                  className={`cursor-pointer block ${uploading ? 'cursor-not-allowed' : ''}`}
+                >
+                  <div className="text-5xl mb-3">
+                    {uploading ? '🤖' : '📄'}
+                  </div>
+                  <div className="text-base font-medium text-gray-700 mb-1">
+                    {uploading ? 'KI analysiert das Dokument...' : 'Anpassungsdokument hochladen'}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {uploading ? (
+                      <span className="text-green-600">⏳ Wird analysiert...</span>
+                    ) : (
+                      <>
+                        Klicken oder Datei hierher ziehen
+                        <br />
+                        <span className="text-xs">PDF, JPG oder PNG (max. 10 MB)</span>
+                      </>
+                    )}
+                  </div>
+                </label>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -503,8 +595,8 @@ export default function MietHistorieExtended({
                 <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                   CHF {startAnpassung.miete.toFixed(2)}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                  🏁 Vertragsbeginn
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-700">
+                  {getStatusLabel(-1, startAnpassung.miete, null).label}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">-</td>
                 <td></td>
@@ -514,7 +606,7 @@ export default function MietHistorieExtended({
               {anpassungen.map((anpassung, index) => {
                 const vorher =
                   index === 0 ? startAnpassung : anpassungen[index - 1];
-                const differenz = anpassung.miete - vorher.miete;
+                const status = getStatusLabel(index, anpassung.miete, vorher.miete);
 
                 return (
                   <tr key={index}>
@@ -538,11 +630,9 @@ export default function MietHistorieExtended({
                       )}
                     </td>
                     <td
-                      className={`px-4 py-3 whitespace-nowrap text-sm font-medium ${
-                        differenz > 0 ? 'text-red-600' : 'text-green-600'
-                      }`}
+                      className={`px-4 py-3 whitespace-nowrap text-sm font-medium ${status.color}`}
                     >
-                      {differenz > 0 ? '↑' : '↓'} CHF {Math.abs(differenz).toFixed(2)}
+                      {status.label}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
                       {anpassung.begründung || '-'}
