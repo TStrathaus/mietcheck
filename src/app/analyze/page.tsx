@@ -136,6 +136,7 @@ export default function AnalyzePage() {
 
       // Save contract to database if user is logged in
       try {
+        console.log('💾 Attempting to save contract to DB...');
         const saveResponse = await fetch('/api/user/contracts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -152,6 +153,8 @@ export default function AnalyzePage() {
           }),
         });
 
+        console.log('📡 Save response status:', saveResponse.status);
+
         if (saveResponse.ok) {
           const saveData = await saveResponse.json();
           console.log('✅ Contract saved to DB:', saveData.contractId);
@@ -159,9 +162,17 @@ export default function AnalyzePage() {
           if (typeof window !== 'undefined' && window.sessionStorage) {
             sessionStorage.setItem('currentContractId', saveData.contractId.toString());
           }
+          // Show success message to user
+          alert('✅ Vertrag erfolgreich gespeichert! Sie finden ihn im Dashboard.');
+        } else {
+          const errorData = await saveResponse.json();
+          console.error('❌ Failed to save contract:', errorData);
+          if (saveResponse.status === 401) {
+            alert('ℹ️ Bitte melden Sie sich an, um den Vertrag zu speichern. Sie können die Analyse trotzdem verwenden.');
+          }
         }
       } catch (saveError) {
-        console.log('ℹ️ Could not save to DB (user might not be logged in):', saveError);
+        console.error('❌ Error saving contract:', saveError);
         // Don't fail the analysis if DB save fails
       }
     } catch (err) {

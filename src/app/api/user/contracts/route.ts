@@ -54,7 +54,11 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
+    console.log('📝 POST /api/user/contracts - Session:', session ? 'exists' : 'missing');
+    console.log('👤 User ID:', session?.user?.id);
+
     if (!session?.user?.id) {
+      console.warn('⚠️ Unauthorized request - no session');
       return NextResponse.json(
         { error: 'Nicht authentifiziert' },
         { status: 401 }
@@ -62,6 +66,11 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
+    console.log('📦 Contract data received:', {
+      address: data.address,
+      netRent: data.netRent,
+      newRent: data.newRent,
+    });
 
     // Create contract in database
     const contract = await createContract(parseInt(session.user.id), {
@@ -78,6 +87,8 @@ export async function POST(request: NextRequest) {
       yearlySavings: data.yearlySavings,
     });
 
+    console.log('✅ Contract created with ID:', contract.id);
+
     return NextResponse.json({
       success: true,
       contractId: contract.id,
@@ -85,9 +96,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating contract:', error);
+    console.error('❌ Error creating contract:', error);
     return NextResponse.json(
-      { error: 'Fehler beim Speichern des Vertrags' },
+      { error: 'Fehler beim Speichern des Vertrags', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

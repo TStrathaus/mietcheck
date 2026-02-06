@@ -51,9 +51,16 @@ export default function DashboardPage() {
 
   const fetchUserData = async () => {
     try {
+      console.log('🔍 Fetching user data...');
+
       // Fetch contracts
       const contractsRes = await fetch('/api/user/contracts');
+      console.log('📡 Contracts response status:', contractsRes.status);
+
       const contractsData = await contractsRes.json();
+      console.log('📦 Contracts data:', contractsData);
+      console.log('📋 Number of contracts:', contractsData.contracts?.length || 0);
+
       setContracts(contractsData.contracts || []);
 
       // Fetch transactions
@@ -62,7 +69,7 @@ export default function DashboardPage() {
       setTransactions(transactionsData.transactions || []);
 
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('❌ Error fetching user data:', error);
     } finally {
       setLoading(false);
     }
