@@ -30,17 +30,13 @@ export default function HomePage() {
               {status === 'loading' ? (
                 <div className="w-20 h-9 bg-gray-200 rounded-lg animate-pulse"></div>
               ) : session ? (
-                <>
-                  <span className="text-gray-700 hidden sm:inline">
-                    👋 {session.user?.name || session.user?.email}
-                  </span>
-                  <Link
-                    href="/dashboard"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    📊 {t('home.ctaDashboard')}
-                  </Link>
-                </>
+                <Link
+                  href="/dashboard"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <span>📊</span>
+                  <span>Dashboard</span>
+                </Link>
               ) : (
                 <>
                   <Link
