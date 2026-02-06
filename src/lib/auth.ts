@@ -14,20 +14,20 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Bitte Email und Passwort eingeben');
+          return null;
         }
 
         try {
           const result = await sql`
-            SELECT id, email, password_hash, name, created_at
+            SELECT id, email, password_hash, name
             FROM users
-            WHERE email = ${credentials.email}
+            WHERE email = ${credentials.email.toLowerCase().trim()}
           `;
 
           const user = result.rows[0];
 
           if (!user) {
-            throw new Error('Kein Benutzer mit dieser Email gefunden');
+            return null;
           }
 
           const isValidPassword = await bcrypt.compare(
@@ -36,8 +36,10 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isValidPassword) {
-            throw new Error('Falsches Passwort');
+            return null;
           }
+
+          console.log('✅ Login successful for:', user.email);
 
           return {
             id: user.id.toString(),
@@ -45,8 +47,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
           };
         } catch (error) {
-          console.error('Auth error:', error);
-          throw new Error('Login fehlgeschlagen');
+          console.error('❌ Auth error:', error);
+          return null;
         }
       }
     })
