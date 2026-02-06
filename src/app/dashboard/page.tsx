@@ -3,7 +3,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 
 interface Contract {
@@ -42,38 +42,57 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  // Fetch user data
-  useEffect(() => {
-    if (session?.user) {
-      fetchUserData();
-    }
-  }, [session]);
-
-  const fetchUserData = async () => {
+  // Fetch user data with useCallback to prevent infinite loops
+  const fetchUserData = useCallback(async () => {
     try {
       console.log('🔍 Fetching user data...');
 
-      // Fetch contracts
+      // Fetch contracts with error handling
       const contractsRes = await fetch('/api/user/contracts');
       console.log('📡 Contracts response status:', contractsRes.status);
 
-      const contractsData = await contractsRes.json();
-      console.log('📦 Contracts data:', contractsData);
-      console.log('📋 Number of contracts:', contractsData.contracts?.length || 0);
+      if (contractsRes.ok) {
+        const contractsData = await contractsRes.json();
+        console.log('📦 Contracts data:', contractsData);
+        console.log('📋 Number of contracts:', contractsData.contracts?.length || 0);
+        setContracts(contractsData.contracts || []);
+      } else {
+        console.error('❌ Contracts fetch failed:', contractsRes.status);
+        setContracts([]);
+      }
 
-      setContracts(contractsData.contracts || []);
-
-      // Fetch transactions
-      const transactionsRes = await fetch('/api/user/transactions');
-      const transactionsData = await transactionsRes.json();
-      setTransactions(transactionsData.transactions || []);
+      // Fetch transactions with error handling
+      try {
+        const transactionsRes = await fetch('/api/user/transactions');
+        if (transactionsRes.ok) {
+          const transactionsData = await transactionsRes.json();
+          setTransactions(transactionsData.transactions || []);
+        } else {
+          console.error('❌ Transactions fetch failed:', transactionsRes.status);
+          setTransactions([]);
+        }
+      } catch (txError) {
+        console.error('❌ Transactions error:', txError);
+        setTransactions([]);
+      }
 
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
+      setContracts([]);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty deps - only create once
+
+  // Fetch user data when session is available
+  useEffect(() => {
+    if (session?.user) {
+      fetchUserData();
+    } else if (status === 'unauthenticated') {
+      setLoading(false);
+    }
+  }, [session, status, fetchUserData]);
 
   // Handle logout
   const handleLogout = async () => {

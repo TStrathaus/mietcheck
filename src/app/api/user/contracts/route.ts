@@ -7,14 +7,28 @@ import { createContract } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 GET /api/user/contracts - Start');
     const session = await getServerSession(authOptions);
-    
+
+    console.log('Session:', {
+      exists: !!session,
+      userId: session?.user?.id,
+      userIdType: typeof session?.user?.id,
+    });
+
     if (!session?.user?.id) {
+      console.warn('⚠️ No session or user ID');
       return NextResponse.json(
-        { error: 'Nicht authentifiziert' },
+        { error: 'Nicht authentifiziert', success: false, contracts: [] },
         { status: 401 }
       );
     }
+
+    const userId = typeof session.user.id === 'string'
+      ? parseInt(session.user.id, 10)
+      : session.user.id;
+
+    console.log('📊 Querying contracts for user:', userId);
 
     const result = await sql`
       SELECT
@@ -32,9 +46,11 @@ export async function GET(request: NextRequest) {
         tenant_address,
         created_at
       FROM contracts
-      WHERE user_id = ${parseInt(session.user.id)}
+      WHERE user_id = ${userId}
       ORDER BY created_at DESC
     `;
+
+    console.log('✅ Found contracts:', result.rows.length);
 
     return NextResponse.json({
       success: true,
@@ -42,9 +58,9 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching contracts:', error);
+    console.error('❌ Error fetching contracts:', error);
     return NextResponse.json(
-      { error: 'Fehler beim Laden der Verträge' },
+      { error: 'Fehler beim Laden der Verträge', success: false, contracts: [], details: error instanceof Error ? error.message : 'Unknown' },
       { status: 500 }
     );
   }
