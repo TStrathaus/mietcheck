@@ -23,6 +23,15 @@ export default function DashboardPageSimple() {
   const [contractsLoading, setContractsLoading] = useState(true);
   const [contractsError, setContractsError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [isMounted, setIsMounted] = useState(true);
+
+  // Track if component is mounted to prevent state updates after unmount
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -35,15 +44,21 @@ export default function DashboardPageSimple() {
     try {
       const log = (msg: string) => {
         console.log(msg);
-        setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+        if (isMounted) {
+          setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+        }
       };
 
       log('📥 Starting loadContracts...');
+      if (!isMounted) return;
+
       setContractsLoading(true);
       setContractsError(null);
 
       log('📡 Fetching /api/user/contracts...');
       const response = await fetch('/api/user/contracts');
+
+      if (!isMounted) return;
       log(`📡 Response status: ${response.status}`);
 
       if (!response.ok) {
@@ -54,30 +69,38 @@ export default function DashboardPageSimple() {
 
       log('📦 Parsing JSON...');
       const data = await response.json();
+
+      if (!isMounted) return;
       log(`✅ Contracts loaded: ${data.contracts?.length || 0} items`);
       log(`📊 Data structure: ${JSON.stringify(data).substring(0, 100)}`);
 
-      setContracts(data.contracts || []);
-      log('✅ State updated successfully');
+      if (isMounted) {
+        setContracts(data.contracts || []);
+        log('✅ State updated successfully');
+      }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       console.error('❌ Error loading contracts:', error);
-      setDebugInfo(prev => [...prev, `❌ ERROR: ${errorMsg}`]);
-      setContractsError(`Fehler: ${errorMsg}`);
-      setContracts([]);
+      if (isMounted) {
+        setDebugInfo(prev => [...prev, `❌ ERROR: ${errorMsg}`]);
+        setContractsError(`Fehler: ${errorMsg}`);
+        setContracts([]);
+      }
     } finally {
-      setContractsLoading(false);
-      setDebugInfo(prev => [...prev, '🏁 loadContracts finished']);
+      if (isMounted) {
+        setContractsLoading(false);
+        setDebugInfo(prev => [...prev, '🏁 loadContracts finished']);
+      }
     }
   };
 
   // Load contracts when session is available
   useEffect(() => {
-    if (session?.user) {
+    if (session?.user && isMounted) {
       loadContracts();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user]);
+  }, [session?.user, isMounted]);
 
   // Show loading while checking session
   if (status === 'loading') {
