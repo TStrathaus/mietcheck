@@ -32,26 +32,32 @@ export default function HomePage() {
               ) : session ? (
                 <>
                   <span className="text-gray-700 hidden sm:inline">
-                    {t('nav.greeting')} {session.user?.name || session.user?.email}
+                    👋 {session.user?.name || session.user?.email}
                   </span>
                   <Link
                     href="/dashboard"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
-                    {t('home.ctaDashboard')}
+                    📊 {t('home.ctaDashboard')}
                   </Link>
                 </>
               ) : (
                 <>
                   <Link
                     href="/login"
-                    className="text-gray-700 hover:text-gray-900 font-medium hidden sm:inline"
+                    className="text-gray-700 hover:text-gray-900 font-medium hidden md:inline"
                   >
                     {t('nav.login')}
                   </Link>
                   <Link
+                    href="/register"
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm"
+                  >
+                    🔔 Liste
+                  </Link>
+                  <Link
                     href="/login"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
                   >
                     {t('nav.startFree')}
                   </Link>
@@ -77,15 +83,23 @@ export default function HomePage() {
               href="/dashboard"
               className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-colors shadow-lg"
             >
-              {t('home.ctaDashboard')}
+              📊 {t('home.ctaDashboard')}
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-colors shadow-lg"
-            >
-              {t('home.ctaStart')}
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                href="/register"
+                className="inline-block bg-green-500 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-green-600 transition-colors shadow-lg"
+              >
+                🔔 Auf Liste setzen
+              </Link>
+              <Link
+                href="/login"
+                className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                👤 Kostenlos registrieren
+              </Link>
+            </div>
           )}
         </div>
 
@@ -191,29 +205,89 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Pricing */}
+        {/* Services / Pricing */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            {t('home.pricingTitle')}
+            Transparente Preise
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Service 0: Benachrichtigung */}
+            <div className="bg-green-50 p-8 rounded-lg shadow-lg border-2 border-green-500">
               <div className="text-center">
-                <p className="text-5xl font-bold text-blue-600 mb-4">{t('home.priceAnalysis')}</p>
-                <p className="text-gray-700 mb-4">{t('home.priceAnalysisDesc')}</p>
+                <div className="text-4xl mb-4">🔔</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Service 0</h3>
+                <p className="text-5xl font-bold text-green-600 mb-4">Kostenlos</p>
+                <p className="text-gray-700 mb-6">
+                  Erhalte eine E-Mail sobald der Referenzzinssatz sinkt und spare automatisch bei deiner Miete.
+                </p>
+                <Link
+                  href="/register"
+                  className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 transition-colors w-full"
+                >
+                  Auf Liste setzen
+                </Link>
               </div>
             </div>
 
+            {/* Service 1: Analyse */}
+            <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-gray-200">
+              <div className="text-center">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Service 1</h3>
+                <p className="text-5xl font-bold text-blue-600 mb-4">CHF 9</p>
+                <p className="text-gray-700 mb-6">
+                  KI-Analyse deines Mietvertrags. Automatische Berechnung des Einsparpotentials basierend auf Referenzzins.
+                </p>
+                {session ? (
+                  <Link
+                    href="/analyze"
+                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors w-full"
+                  >
+                    Jetzt analysieren
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors w-full"
+                  >
+                    Registrieren
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Service 2: Brief */}
             <div className="bg-blue-50 p-8 rounded-lg shadow-lg border-2 border-blue-500">
               <div className="text-center">
-                <p className="text-5xl font-bold text-blue-600 mb-4">{t('home.priceLetter')}</p>
-                <p className="text-gray-700 mb-4">{t('home.priceLetterDesc')}</p>
+                <div className="text-4xl mb-4">✉️</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Service 2</h3>
+                <p className="text-5xl font-bold text-blue-600 mb-4">CHF 49</p>
+                <p className="text-gray-700 mb-6">
+                  Rechtssicheres Herabsetzungsschreiben in 1 Minute. Basierend auf OR 269d und aktuellen SNB-Daten.
+                </p>
+                {session ? (
+                  <Link
+                    href="/generate"
+                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors w-full"
+                  >
+                    Brief erstellen
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors w-full"
+                  >
+                    Registrieren
+                  </Link>
+                )}
               </div>
             </div>
           </div>
 
-          <p className="text-center text-gray-600 mt-6">{t('home.priceNote')}</p>
+          <p className="text-center text-gray-600 mt-6">
+            💰 Spare CHF 300-700 pro Jahr. Einmalige Kosten. Keine Abos.
+          </p>
         </div>
 
         {/* Testimonials */}
