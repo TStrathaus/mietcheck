@@ -45,17 +45,24 @@ export default function AnalyzePage() {
   // Handle analysis completion from FileUpload
   const handleAnalysisComplete = (data: ContractData) => {
     console.log('📊 Auto-filling form with analyzed data:', data);
+    console.log('Original contractDate:', data.contractDate);
+
+    const normalizedDate = normalizeDateFormat(data.contractDate);
+    console.log('Normalized contractDate:', normalizedDate);
 
     // Save complete contract data
     setContractData(data);
 
     // Auto-fill form fields with normalized date
-    setFormData({
+    const newFormData = {
       address: data.address,
       netRent: data.netRent.toString(),
       currentRate: data.referenceRate.toString(),
-      contractDate: normalizeDateFormat(data.contractDate),
-    });
+      contractDate: normalizedDate,
+    };
+
+    console.log('Setting formData:', newFormData);
+    setFormData(newFormData);
 
     // Show MietHistorie component
     setShowHistorie(true);
