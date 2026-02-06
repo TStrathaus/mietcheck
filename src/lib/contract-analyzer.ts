@@ -1,4 +1,10 @@
-// src/lib/contract-analyzer.ts (Updated with landlord data)
+// src/lib/contract-analyzer.ts (Updated with validation & warnings)
+
+export interface ContractWarning {
+  type: 'info' | 'warning' | 'error';
+  code: string;
+  message: string;
+}
 
 export interface ContractData {
   address: string;
@@ -7,6 +13,12 @@ export interface ContractData {
   contractDate: string;
   landlordName: string;
   landlordAddress: string;
+  // Validation fields
+  isCommercial: boolean; // Gewerbemiete vs. Wohnmiete
+  hasReferenceRateClause: boolean; // Hat Referenzzins-Klausel
+  confidence: number; // 0-100, wie sicher ist die Extraktion
+  warnings: ContractWarning[];
+  extractedFields: string[]; // Welche Felder wurden gefunden
 }
 
 export async function analyzeContract(extractedText: string): Promise<ContractData> {

@@ -10,6 +10,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { service, amount, email, metadata } = body;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -18,7 +20,7 @@ export async function POST(request: NextRequest) {
             currency: 'chf',
             product_data: {
               name: service === 'analyze' ? 'Service 1: Anspruchsanalyse' : 'Service 2: Dokument-Erstellung',
-              description: service === 'analyze' 
+              description: service === 'analyze'
                 ? 'KI-Analyse deines Mietvertrags mit Ersparnis-Berechnung'
                 : 'Rechtssicheres Herabsetzungsbegehren als PDF',
             },
@@ -29,15 +31,20 @@ export async function POST(request: NextRequest) {
       ],
       mode: 'payment',
       customer_email: email,
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${service === 'analyze' ? 'analyze' : 'generate'}?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${service === 'analyze' ? 'analyze' : 'generate'}?canceled=true`,
+      // Include session_id in the success URL for verification
+      success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&service=${service}`,
+      cancel_url: `${baseUrl}/payment/cancel?service=${service}`,
       metadata: {
         service,
+        email,
         ...metadata,
       },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+      sessionId: session.id,
+    });
   } catch (error: any) {
     console.error('Stripe error:', error);
     return NextResponse.json(

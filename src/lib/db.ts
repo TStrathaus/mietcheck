@@ -28,7 +28,7 @@ export async function setupDatabase() {
       );
     `;
 
-    // Create transactions table
+    // Create transactions table with Stripe support
     await sql`
       CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY,
@@ -36,8 +36,20 @@ export async function setupDatabase() {
         contract_id INTEGER REFERENCES contracts(id) ON DELETE CASCADE,
         service_type VARCHAR(50),
         amount DECIMAL(10,2),
-        stripe_session_id VARCHAR(255),
+        stripe_session_id VARCHAR(255) UNIQUE,
         status VARCHAR(50) DEFAULT 'pending',
+        paid_at TIMESTAMP,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    // Create payment_failures table for analytics
+    await sql`
+      CREATE TABLE IF NOT EXISTS payment_failures (
+        id SERIAL PRIMARY KEY,
+        stripe_payment_intent_id VARCHAR(255),
+        error_message TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
@@ -80,18 +92,54 @@ export async function createContract(userId: number, data: any) {
   return result.rows[0];
 }
 
-export async function createTransaction(userId: number, contractId: number, serviceType: string, amount: number) {
+export async function createTransaction(
+  userId: number,
+  contractId: number | null,
+  serviceType: string,
+  amount: number,
+  stripeSessionId?: string
+) {
   const result = await sql`
-    INSERT INTO transactions (user_id, contract_id, service_type, amount, status)
-    VALUES (${userId}, ${contractId}, ${serviceType}, ${amount}, 'completed')
+    INSERT INTO transactions (user_id, contract_id, service_type, amount, stripe_session_id, status)
+    VALUES (${userId}, ${contractId}, ${serviceType}, ${amount}, ${stripeSessionId || null}, 'pending')
     RETURNING *;
   `;
   return result.rows[0];
 }
 
+export async function updateTransactionStatus(
+  stripeSessionId: string,
+  status: string,
+  paidAt?: Date
+) {
+  const paidAtISO = paidAt ? paidAt.toISOString() : null;
+  const result = await sql`
+    UPDATE transactions
+    SET status = ${status},
+        paid_at = ${paidAtISO}
+    WHERE stripe_session_id = ${stripeSessionId}
+    RETURNING *;
+  `;
+  return result.rows[0];
+}
+
+export async function getTransactionBySessionId(stripeSessionId: string) {
+  const result = await sql`
+    SELECT * FROM transactions WHERE stripe_session_id = ${stripeSessionId} LIMIT 1;
+  `;
+  return result.rows[0] || null;
+}
+
 export async function getUserContracts(userId: number) {
   const result = await sql`
     SELECT * FROM contracts WHERE user_id = ${userId} ORDER BY created_at DESC;
+  `;
+  return result.rows;
+}
+
+export async function getUserTransactions(userId: number) {
+  const result = await sql`
+    SELECT * FROM transactions WHERE user_id = ${userId} ORDER BY created_at DESC;
   `;
   return result.rows;
 }

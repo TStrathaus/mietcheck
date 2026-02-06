@@ -8,11 +8,11 @@ import FileUpload from '@/components/FileUpload';
 import MietHistorieExtended from '@/components/MietHistorieExtended';
 import { ContractData } from '@/lib/contract-analyzer';
 import { MietHistorie } from '@/lib/miet-calculator-extended';
-import { showSuccessToast, showErrorToast, fetchWithRetry, getErrorMessage } from '@/lib/api-utils';
+import { showSuccess, showError, showLoading, dismissToast, toastMessages, getErrorMessage } from '@/lib/toast';
 
 export default function AnalyzePage() {
   const router = useRouter();
-  
+
   const [formData, setFormData] = useState({
     address: '',
     netRent: '',
@@ -25,7 +25,6 @@ export default function AnalyzePage() {
   const [showHistorie, setShowHistorie] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Handle analysis completion from FileUpload
   const handleAnalysisComplete = (data: ContractData) => {
@@ -44,7 +43,7 @@ export default function AnalyzePage() {
 
     // Show MietHistorie component
     setShowHistorie(true);
-    setError(null);
+    showSuccess('Vertragsdaten erfolgreich extrahiert!');
   };
 
   // Handle form input changes
@@ -90,19 +89,58 @@ export default function AnalyzePage() {
       console.log('💾 Saved complete data to sessionStorage:', completeData);
     }
 
+    showSuccess('Daten gespeichert - Weiterleitung...');
+
     // Navigate to generate page
     router.push('/generate');
+  };
+
+  // Validate form before submission
+  const validateForm = (): string | null => {
+    if (!formData.address.trim()) {
+      return 'Bitte geben Sie die Adresse der Mietwohnung ein';
+    }
+    if (!formData.netRent || parseFloat(formData.netRent) <= 0) {
+      return 'Bitte geben Sie eine gültige Nettomiete ein';
+    }
+    if (parseFloat(formData.netRent) < 100) {
+      return 'Die Nettomiete scheint zu niedrig zu sein (< CHF 100)';
+    }
+    if (parseFloat(formData.netRent) > 20000) {
+      return 'Die Nettomiete scheint zu hoch zu sein (> CHF 20\'000). Bitte prüfen Sie die Eingabe.';
+    }
+    if (!formData.contractDate) {
+      return 'Bitte geben Sie das Vertragsdatum ein';
+    }
+    const contractDate = new Date(formData.contractDate);
+    const now = new Date();
+    if (contractDate > now) {
+      return 'Das Vertragsdatum kann nicht in der Zukunft liegen';
+    }
+    if (contractDate < new Date('1990-01-01')) {
+      return 'Das Vertragsdatum scheint zu weit in der Vergangenheit zu liegen';
+    }
+    return null;
   };
 
   // Submit calculation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      showError(validationError);
+      return;
+    }
+
     setLoading(true);
-    setError(null);
     setResult(null);
 
+    const loadingToast = showLoading('Berechnung läuft...');
+
     try {
-      const response = await fetchWithRetry('/api/analyze', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,23 +153,28 @@ export default function AnalyzePage() {
           contractDate: formData.contractDate,
           mietHistorie: mietHistorie, // Include history if available
         }),
-        retries: 2,
-        retryDelay: 1000,
       });
+
+      dismissToast(loadingToast);
 
       const data = await response.json();
 
       if (!response.ok) {
-        const errorMsg = getErrorMessage(response.status, data.error);
-        throw new Error(errorMsg);
+        throw new Error(data.error || 'Berechnung fehlgeschlagen');
       }
 
       setResult(data);
-      showSuccessToast('Berechnung erfolgreich!');
+
+      // Show appropriate message based on result
+      if (data.monthlyReduction > 0) {
+        showSuccess(`Sie können CHF ${data.monthlyReduction.toFixed(2)}/Monat sparen!`);
+      } else {
+        showError('Leider kein Einsparungspotential gefunden. Der aktuelle Referenzzinssatz ist bereits optimal für Sie.');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten';
-      setError(errorMessage);
-      showErrorToast(err, errorMessage);
+      dismissToast(loadingToast);
+      const errorMessage = getErrorMessage(err);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -192,7 +235,7 @@ export default function AnalyzePage() {
             {/* Address */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                📍 Adresse der Mietwohnung
+                📍 Adresse der Mietwohnung *
               </label>
               <input
                 type="text"
@@ -208,7 +251,7 @@ export default function AnalyzePage() {
             {/* Net Rent */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                💰 Nettomiete (CHF/Monat)
+                💰 Nettomiete (CHF/Monat) *
               </label>
               <input
                 type="number"
@@ -222,14 +265,14 @@ export default function AnalyzePage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-sm text-gray-500 mt-1">
-                Grundmiete ohne Nebenkosten
+                Grundmiete ohne Nebenkosten (CHF 100 - 20'000)
               </p>
             </div>
 
             {/* Reference Rate */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                📊 Referenzzinssatz bei Vertragsabschluss (%)
+                📊 Referenzzinssatz bei Vertragsabschluss (%) *
               </label>
               <select
                 name="currentRate"
@@ -248,7 +291,7 @@ export default function AnalyzePage() {
             {/* Contract Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                📅 Vertragsdatum
+                📅 Vertragsdatum *
               </label>
               <input
                 type="date"
@@ -256,6 +299,7 @@ export default function AnalyzePage() {
                 value={formData.contractDate}
                 onChange={handleInputChange}
                 required
+                max={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -264,67 +308,74 @@ export default function AnalyzePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
-              {loading ? '⏳ Berechnung läuft...' : '🧮 Einsparung berechnen'}
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Berechnung läuft...
+                </>
+              ) : (
+                '🧮 Einsparung berechnen'
+              )}
             </button>
           </form>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800 font-medium">❌ {error}</p>
-            </div>
-          )}
-
           {/* Results */}
           {result && (
-            <div className="mt-8 bg-green-50 border-2 border-green-500 rounded-lg p-6">
+            <div className="mt-8 bg-green-50 border-2 border-green-500 rounded-lg p-6 animate-fadeIn">
               <h3 className="text-2xl font-bold text-green-900 mb-4">
                 🎉 Ihr Einsparungspotential
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg p-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600">Aktuelle Miete</p>
                   <p className="text-2xl font-bold text-gray-900">
                     CHF {result.currentRent.toFixed(2)}
                   </p>
                 </div>
 
-                <div className="bg-white rounded-lg p-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600">Neue Miete</p>
                   <p className="text-2xl font-bold text-green-600">
                     CHF {result.newRent.toFixed(2)}
                   </p>
                 </div>
 
-                <div className="bg-white rounded-lg p-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600">Monatliche Reduktion</p>
                   <p className="text-2xl font-bold text-blue-600">
                     CHF {result.monthlyReduction.toFixed(2)}
                   </p>
                 </div>
 
-                <div className="bg-white rounded-lg p-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600">Jährliche Einsparung</p>
                   <p className="text-2xl font-bold text-blue-600">
                     CHF {result.yearlySavings.toFixed(2)}
                   </p>
                 </div>
               </div>
-
-              {/* Validation Warnings */}
-              {result.validation?.warnings && result.validation.warnings.length > 0 && (
-                <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-yellow-800 font-medium mb-2">⚠️ Hinweise:</p>
-                  <ul className="text-sm text-yellow-700 space-y-1">
-                    {result.validation.warnings.map((warning: string, index: number) => (
-                      <li key={index}>• {warning}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
 
               <div className="mt-6 text-center">
                 <button
