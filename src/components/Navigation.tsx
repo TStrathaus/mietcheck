@@ -40,7 +40,7 @@ export default function Navigation() {
             ) : (
               <>
                 <Link
-                  href="/register?service=0"
+                  href="/notify"
                   className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
                 >
                   Benachrichtigung
@@ -103,7 +103,7 @@ export default function Navigation() {
               ) : (
                 <>
                   <Link
-                    href="/register?service=0"
+                    href="/notify"
                     className="px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >

@@ -32,7 +32,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-2xl mx-auto">
             {/* Entry 1: Benachrichtigung */}
             <Link
-              href="/register?service=0"
+              href="/notify"
               className="flex-1 bg-green-500 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-green-600 transition-all shadow-lg hover:shadow-xl text-center"
             >
               <div className="text-3xl mb-2">🔔</div>
@@ -122,7 +122,7 @@ export default function HomePage() {
                   E-Mail bei Zinssenkung. Keine Registrierung nötig.
                 </p>
                 <Link
-                  href="/register?service=0"
+                  href="/notify"
                   className="block bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 transition-colors"
                 >
                   Auf Liste setzen
