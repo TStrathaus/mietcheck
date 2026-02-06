@@ -199,8 +199,25 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-6 text-center">
-            <p className="text-gray-400 text-sm">© 2026 MietCheck.ch - Alle Rechte vorbehalten</p>
+          <div className="border-t border-gray-800 pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-gray-400 text-sm">© 2026 MietCheck.ch - Alle Rechte vorbehalten</p>
+              <div className="flex items-center gap-4 text-sm">
+                <a
+                  href="mailto:support@mietcheck.ch"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  📧 support@mietcheck.ch
+                </a>
+                <span className="text-gray-600">|</span>
+                <a
+                  href="tel:+41 44 123 45 67"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  📞 +41 44 123 45 67
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
