@@ -11,7 +11,8 @@ const nextConfig = {
     return buildId;
   },
   env: {
-    NEXT_PUBLIC_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA || `local-${Date.now()}`,
+    NEXT_PUBLIC_COMMIT_MSG: process.env.VERCEL_GIT_COMMIT_MESSAGE || 'Development',
+    NEXT_PUBLIC_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA || 'local',
   },
   webpack: (config) => {
     config.resolve.alias.canvas = false;

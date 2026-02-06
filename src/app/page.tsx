@@ -337,7 +337,9 @@ export default function HomePage() {
 
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
             <p>{t('home.footerRights')}</p>
-            <p className="mt-2 text-xs text-gray-600">v{process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}</p>
+            <p className="mt-2 text-xs text-gray-600" title={process.env.NEXT_PUBLIC_COMMIT_SHA}>
+              {process.env.NEXT_PUBLIC_COMMIT_MSG || 'Development'}
+            </p>
           </div>
         </div>
       </footer>
