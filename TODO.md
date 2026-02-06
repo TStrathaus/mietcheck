@@ -1,15 +1,15 @@
 # MietCheck.ch - Development Roadmap
 
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-06
 **Current Phase:** Phase 1 - Critical Functions
 
 ---
 
 ## 📊 PROGRESS OVERVIEW
 
-**Completed:** 9/17 tasks
-**In Progress:** 0/17 tasks
-**Not Started:** 8/17 tasks
+**Completed:** 11/19 tasks (58%)
+**In Progress:** 0/19 tasks
+**Not Started:** 8/19 tasks
 
 ---
 
@@ -243,20 +243,32 @@
 ---
 
 ### 10. Multi-Language Support 🌍
-**Status:** ❌ Not Started
+**Status:** ✅ COMPLETED
 **Priority:** LOW
-**Estimated Time:** 4-6 hours
+**Completed:** 2026-02-06
+**Time Taken:** 6 hours
 
-**Tasks:**
-- [ ] i18n Setup (next-intl)
-- [ ] Deutsch ✅ (bereits vorhanden)
-- [ ] Französisch
-- [ ] Italienisch
-- [ ] Englisch (für Expats)
-- [ ] Language Switcher UI
+**Implemented:**
+- [x] i18n Setup (next-intl)
+- [x] Deutsch ✅ (vollständig)
+- [x] Französisch ✅ (vollständig)
+- [x] Italienisch ✅ (vollständig)
+- [x] Englisch ✅ (vollständig)
+- [x] Language Switcher UI mit Flaggen und Cookie-Persistenz
+- [x] Homepage komplett übersetzt mit useTranslations()
+- [x] Brief-Sprachauswahl unabhängig von UI-Sprache (DE/FR/IT)
+- [x] Dashboard zeigt gespeicherte Verträge mit allen Berechnungsdaten
 
-**Blockers:**
-- Professionelle Übersetzungen benötigt
+**Files Changed:**
+- `messages/de.json`, `messages/fr.json`, `messages/it.json`, `messages/en.json` - Vollständige Übersetzungen
+- `src/app/page.tsx` - Homepage mit next-intl
+- `src/app/generate/page.tsx` - Letter language selector
+- `src/app/dashboard/page.tsx` - Erweiterte Contract-Anzeige
+- `src/components/LanguageSwitcher.tsx` - Dropdown mit Flaggen
+- `src/i18n/config.ts`, `src/i18n/request.ts` - i18n Configuration
+- `next.config.js` - withNextIntl wrapper
+
+**Note:** Übersetzungen wurden mit KI erstellt und sollten von Muttersprachlern reviewed werden
 
 ---
 
@@ -424,6 +436,68 @@
 - [ ] Performance-Probleme werden erkannt
 
 **Blockers:** None
+
+---
+
+## PHASE 5: CONTENT MANAGEMENT (FUTURE)
+
+### 19. Content Management System 📝
+**Status:** ❌ Not Started (FUTURE)
+**Priority:** LOW
+**Estimated Time:** 8-12 hours (für CMS) / 2-3 hours (für GitHub-basierte Lösung)
+
+**Entscheidung:** CMS erst bei MRR > €10,000 oder Marketing-Team
+
+**Optionen:**
+
+**Option A: Status Quo (JSON-Dateien in Git) - EMPFOHLEN für 2026** ✅
+- **Vorteile:**
+  - ✅ Kein Extra-Hosting nötig
+  - ✅ Versionskontrolle in Git
+  - ✅ Kostenlos
+  - ✅ Schnell (Texte im Build gebacken)
+  - ✅ Typsicher
+- **Nachteile:**
+  - ❌ Technisches Wissen für Änderungen nötig
+  - ❌ Deployment bei jeder Textänderung
+- **Wann verwenden:** Startup-Phase, kleines Team, Budget < €10k MRR
+
+**Option B: GitHub als "CMS" (Kompromiss)**
+- Einfache Web-UI bauen, die JSON über GitHub API editiert
+- Automatischer PR-Erstellung bei Änderungen
+- Kostenlos, aber nutzerfreundlicher als direkt Git
+- **Estimated Time:** 2-3 hours
+- **Wann verwenden:** Wenn Marketing-Team oft Texte ändert, aber Budget klein
+
+**Option C: Headless CMS (Contentful / Sanity / Strapi)**
+- **Kosten:** €99-300/Monat
+- **Vorteile:**
+  - ✅ WYSIWYG Editor
+  - ✅ Sofortige Updates ohne Deploy
+  - ✅ Workflow (Review, Scheduling)
+  - ✅ Mehrere Editoren gleichzeitig
+- **Nachteile:**
+  - ❌ Monatliche Kosten
+  - ❌ Komplexität
+  - ❌ Externe Abhängigkeit
+  - ❌ Langsamere Ladezeit (API-Calls)
+- **Wann verwenden:** MRR > €10k, Marketing-Team vorhanden, viele A/B-Tests
+
+**Empfehlung:**
+1. **JETZT (2026):** Option A - JSON in Git ✅
+2. **Nach 6-12 Monaten:** Option B - GitHub-basiertes CMS (wenn nötig)
+3. **Nach Product-Market-Fit:** Option C - Professionelles CMS
+
+**Tasks (wenn CMS gewünscht):**
+- [ ] CMS Provider auswählen (Contentful vs Sanity vs Strapi)
+- [ ] Account einrichten
+- [ ] Content-Model definieren
+- [ ] API Integration
+- [ ] Fallback-Strategy bei CMS-Ausfall
+- [ ] Caching implementieren (ISR oder SSG)
+
+**Blockers:**
+- Nicht dringend, nur wenn Team wächst oder viele Textänderungen nötig
 
 ---
 
