@@ -107,6 +107,11 @@ Antworte NUR mit einem JSON-Objekt, keine zusätzlichen Erklärungen:
     contractDate: parsedData.contractDate || '',
     landlordName: parsedData.landlordName || '',
     landlordAddress: parsedData.landlordAddress || '',
+    isCommercial: parsedData.isCommercial || false,
+    hasReferenceRateClause: parsedData.hasReferenceRateClause || false,
+    confidence: parsedData.confidence || 0,
+    warnings: parsedData.warnings || [],
+    extractedFields: parsedData.extractedFields || [],
   };
 
   console.log('✅ Contract analysis complete:', contractData);

@@ -85,7 +85,7 @@ export async function sendEmail(emailData: EmailData) {
           : `${baseUrl}/dashboard`;
 
         subject = `✅ Analyse abgeschlossen: ${address}`;
-        html = render(
+        html = await render(
           AnalysisCompleteEmail({
             userName: data.userName,
             address,
@@ -106,7 +106,7 @@ export async function sendEmail(emailData: EmailData) {
           : `${baseUrl}/dashboard`;
 
         subject = `📄 Herabsetzungsbrief bereit: ${address}`;
-        html = render(
+        html = await render(
           LetterGeneratedEmail({
             userName: data.userName,
             address,
@@ -125,7 +125,7 @@ export async function sendEmail(emailData: EmailData) {
           : `${baseUrl}/dashboard`;
 
         subject = `📄 Ihr Herabsetzungsbrief: ${address}`;
-        html = render(
+        html = await render(
           LetterWithAttachmentEmail({
             userName: data.userName,
             address,
@@ -175,7 +175,7 @@ export async function sendEmail(emailData: EmailData) {
         const loginUrl = `${baseUrl}/dashboard`;
 
         subject = '🏠 Willkommen bei MietCheck.ch';
-        html = render(
+        html = await render(
           WelcomeEmail({
             userName: data.userName,
             userEmail,
