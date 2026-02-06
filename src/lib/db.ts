@@ -52,9 +52,16 @@ export async function setupDatabase() {
         service_type VARCHAR(50),
         amount DECIMAL(10,2),
         stripe_session_id VARCHAR(255),
+        payrexx_transaction_id VARCHAR(255),
         status VARCHAR(50) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `;
+
+    // Migration: Add payrexx_transaction_id column if it doesn't exist
+    await sql`
+      ALTER TABLE transactions
+      ADD COLUMN IF NOT EXISTS payrexx_transaction_id VARCHAR(255);
     `;
 
     console.log('✅ Database tables created successfully');

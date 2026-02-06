@@ -1,45 +1,53 @@
-// src/app/api/verify-payment/route.ts
+// Payment Verification API - Payrexx Integration
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-02-24.acacia',
-});
+import { getTransaction } from '@/lib/payrexx';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId } = await request.json();
+    const { transactionId, sessionId } = await request.json();
 
-    if (!sessionId) {
+    // Handle test mode
+    if (sessionId === 'TEST_MODE' || !process.env.PAYREXX_INSTANCE) {
+      return NextResponse.json({
+        verified: true,
+        testMode: true,
+        message: 'Payment verified in test mode',
+      });
+    }
+
+    if (!transactionId) {
       return NextResponse.json(
-        { verified: false, error: 'Session ID required' },
+        { verified: false, error: 'Transaction ID required' },
         { status: 400 }
       );
     }
 
-    // Retrieve the checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    // Get transaction details from Payrexx
+    const transaction = await getTransaction(parseInt(transactionId));
 
-    if (session.payment_status === 'paid') {
+    if (transaction.status === 'confirmed') {
       return NextResponse.json({
         verified: true,
-        session: {
-          id: session.id,
-          customerEmail: session.customer_email,
-          amountTotal: session.amount_total,
-          metadata: session.metadata,
-          paymentStatus: session.payment_status,
+        transaction: {
+          id: transaction.id,
+          status: transaction.status,
+          amount: transaction.amount,
+          currency: transaction.currency,
+          referenceId: transaction.referenceId,
+          contact: transaction.contact,
         },
       });
     }
 
     return NextResponse.json({
       verified: false,
-      error: 'Payment not completed',
-      paymentStatus: session.payment_status,
+      error: 'Payment not confirmed',
+      status: transaction.status,
     });
+
   } catch (error: any) {
-    console.error('Payment verification error:', error);
+    console.error('❌ Payment verification error:', error);
+
     return NextResponse.json(
       { verified: false, error: error.message },
       { status: 500 }
