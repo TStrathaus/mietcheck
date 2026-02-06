@@ -3,12 +3,25 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+
+interface Contract {
+  id: number;
+  address: string;
+  net_rent: number;
+  new_rent?: number;
+  monthly_reduction?: number;
+  yearly_savings?: number;
+  created_at: string;
+}
 
 export default function DashboardPageSimple() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [isLoadingContracts, setIsLoadingContracts] = useState(false);
+  const [contractsError, setContractsError] = useState<string | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -16,6 +29,38 @@ export default function DashboardPageSimple() {
       router.push('/login');
     }
   }, [status, router]);
+
+  // Load contracts - wrapped in useCallback to prevent recreation
+  const loadContracts = useCallback(async () => {
+    if (!session?.user) return;
+
+    try {
+      setIsLoadingContracts(true);
+      setContractsError(null);
+
+      const response = await fetch('/api/user/contracts');
+
+      if (!response.ok) {
+        throw new Error('Failed to load contracts');
+      }
+
+      const data = await response.json();
+      setContracts(data.contracts || []);
+    } catch (error) {
+      console.error('Error loading contracts:', error);
+      setContractsError('Verträge konnten nicht geladen werden');
+      setContracts([]);
+    } finally {
+      setIsLoadingContracts(false);
+    }
+  }, [session?.user]);
+
+  // Load contracts once when session is ready
+  useEffect(() => {
+    if (session?.user && !isLoadingContracts) {
+      loadContracts();
+    }
+  }, [session?.user, loadContracts, isLoadingContracts]);
 
   // Show loading while checking session
   if (status === 'loading') {
@@ -117,20 +162,82 @@ export default function DashboardPageSimple() {
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">
-            📋 Ihre Verträge und Dokumente
+        {/* Contracts Section */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            📋 Meine Mietverträge
           </h2>
-          <p className="text-gray-700 mb-4">
-            Sobald Sie einen Service nutzen, werden Ihre Mietverträge und generierten Dokumente hier angezeigt.
-          </p>
-          <Link
-            href="/analyze"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            📊 Ersten Vertrag analysieren
-          </Link>
+
+          {isLoadingContracts ? (
+            <div className="text-center py-8">
+              <div className="animate-spin h-8 w-8 border-4 border-blue-600 rounded-full border-t-transparent mx-auto mb-3"></div>
+              <p className="text-gray-600">Lade Verträge...</p>
+            </div>
+          ) : contractsError ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <p className="text-red-700 mb-3">❌ {contractsError}</p>
+              <button
+                onClick={loadContracts}
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                🔄 Erneut versuchen
+              </button>
+            </div>
+          ) : contracts.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📄</div>
+              <p className="text-gray-600 mb-4">Noch keine Verträge analysiert</p>
+              <Link
+                href="/analyze"
+                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                📊 Ersten Vertrag analysieren
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {contracts.map((contract) => (
+                <div
+                  key={contract.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-gray-900 mb-2">
+                        📍 {contract.address}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-500">Aktuelle Miete:</span>
+                          <span className="font-medium text-gray-900 ml-2">
+                            CHF {contract.net_rent?.toFixed(2) || '0.00'}
+                          </span>
+                        </div>
+                        {contract.new_rent && (
+                          <div>
+                            <span className="text-gray-500">Neue Miete:</span>
+                            <span className="font-medium text-green-600 ml-2">
+                              CHF {contract.new_rent.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      {contract.yearly_savings && contract.yearly_savings > 0 && (
+                        <div className="mt-2 bg-green-50 border border-green-200 rounded px-3 py-2 inline-block">
+                          <span className="text-green-700 font-bold">
+                            💰 Ersparnis: CHF {contract.yearly_savings.toFixed(2)}/Jahr
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right text-sm text-gray-500">
+                      {new Date(contract.created_at).toLocaleDateString('de-CH')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
