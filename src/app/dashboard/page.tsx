@@ -22,6 +22,7 @@ export default function DashboardPageSimple() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [contractsLoading, setContractsLoading] = useState(true);
   const [contractsError, setContractsError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -30,38 +31,53 @@ export default function DashboardPageSimple() {
     }
   }, [status, router]);
 
+  const loadContracts = async () => {
+    try {
+      const log = (msg: string) => {
+        console.log(msg);
+        setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+      };
+
+      log('📥 Starting loadContracts...');
+      setContractsLoading(true);
+      setContractsError(null);
+
+      log('📡 Fetching /api/user/contracts...');
+      const response = await fetch('/api/user/contracts');
+      log(`📡 Response status: ${response.status}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        log(`❌ Response not OK: ${errorText.substring(0, 100)}`);
+        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 50)}`);
+      }
+
+      log('📦 Parsing JSON...');
+      const data = await response.json();
+      log(`✅ Contracts loaded: ${data.contracts?.length || 0} items`);
+      log(`📊 Data structure: ${JSON.stringify(data).substring(0, 100)}`);
+
+      setContracts(data.contracts || []);
+      log('✅ State updated successfully');
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Error loading contracts:', error);
+      setDebugInfo(prev => [...prev, `❌ ERROR: ${errorMsg}`]);
+      setContractsError(`Fehler: ${errorMsg}`);
+      setContracts([]);
+    } finally {
+      setContractsLoading(false);
+      setDebugInfo(prev => [...prev, '🏁 loadContracts finished']);
+    }
+  };
+
   // Load contracts when session is available
   useEffect(() => {
     if (session?.user) {
       loadContracts();
     }
-  }, [session]);
-
-  const loadContracts = async () => {
-    try {
-      console.log('📥 Loading contracts...');
-      setContractsLoading(true);
-      setContractsError(null);
-
-      const response = await fetch('/api/user/contracts');
-      console.log('📡 Response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Contracts loaded:', data.contracts?.length || 0);
-
-      setContracts(data.contracts || []);
-    } catch (error) {
-      console.error('❌ Error loading contracts:', error);
-      setContractsError('Fehler beim Laden der Verträge');
-      setContracts([]);
-    } finally {
-      setContractsLoading(false);
-    }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user]);
 
   // Show loading while checking session
   if (status === 'loading') {
@@ -162,6 +178,24 @@ export default function DashboardPageSimple() {
             </div>
           </div>
         </div>
+
+        {/* Debug Info (temporary) */}
+        {debugInfo.length > 0 && (
+          <div className="bg-gray-900 text-green-400 rounded-lg p-4 mb-4 font-mono text-xs max-h-48 overflow-y-auto">
+            <div className="flex justify-between items-center mb-2">
+              <strong className="text-white">🔍 Debug Log:</strong>
+              <button
+                onClick={() => setDebugInfo([])}
+                className="text-gray-400 hover:text-white text-xs"
+              >
+                Clear
+              </button>
+            </div>
+            {debugInfo.map((log, i) => (
+              <div key={i}>{log}</div>
+            ))}
+          </div>
+        )}
 
         {/* Contracts Section */}
         <div className="bg-white rounded-lg shadow-lg p-6">

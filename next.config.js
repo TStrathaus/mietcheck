@@ -7,7 +7,11 @@ const nextConfig = {
   reactStrictMode: true,
   // Force cache invalidation after major UI changes
   generateBuildId: async () => {
-    return `build-${Date.now()}`
+    const buildId = `build-${Date.now()}`;
+    return buildId;
+  },
+  env: {
+    NEXT_PUBLIC_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA || `local-${Date.now()}`,
   },
   webpack: (config) => {
     config.resolve.alias.canvas = false;
