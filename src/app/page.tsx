@@ -27,9 +27,7 @@ export default function HomePage() {
 
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
-              {status === 'loading' ? (
-                <div className="w-20 h-9 bg-gray-200 rounded-lg animate-pulse"></div>
-              ) : session ? (
+              {session ? (
                 <Link
                   href="/dashboard"
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -339,7 +337,7 @@ export default function HomePage() {
 
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
             <p>{t('home.footerRights')}</p>
-            <p className="mt-2 text-xs text-gray-600">Build: {process.env.NEXT_PUBLIC_BUILD_ID || 'local'}</p>
+            <p className="mt-2 text-xs text-gray-600">v{process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}</p>
           </div>
         </div>
       </footer>
