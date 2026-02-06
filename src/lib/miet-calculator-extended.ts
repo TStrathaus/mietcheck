@@ -339,23 +339,9 @@ export function validateMietHistorieDetailed(
         const naechsterKuendigungstermin = berechneNaechstenKuendigungstermin(new Date());
 
         kritisch.push(
-          `❌ KRITISCH: Nicht-berücksichtigte Zinssenkung!`,
-          ``,
-          `Seit ${new Date(zinssenkungDatum).toLocaleDateString('de-CH')} ist der Referenzzins bei ${letzterSchritt.zins}%`,
-          `Ihre Miete basiert noch auf ${aktuelleAnpassung.referenzzinssatz}%`,
-          ``,
-          `Differenz: ${(letzterSchritt.zins - aktuelleAnpassung.referenzzinssatz).toFixed(2)}% ` +
-          `(${Math.abs((letzterSchritt.zins - aktuelleAnpassung.referenzzinssatz) / 0.25)} Schritte à 0.25%)`,
-          `Reduzierung: ${((letzterSchritt.miete - aktuelleAnpassung.miete) / aktuelleAnpassung.miete * 100).toFixed(2)}%`,
-          ``,
-          `💰 SIE HABEN ANSPRUCH AUF:`,
-          `• Neue Miete: CHF ${aktuelleSollMiete.toFixed(2)}/Monat`,
-          `• Aktuelle Miete: CHF ${aktuelleAnpassung.miete.toFixed(2)}/Monat`,
-          `• Monatliche Ersparnis: CHF ${differenz.toFixed(2)}`,
-          `• Jährliche Ersparnis: CHF ${(differenz * 12).toFixed(2)}`,
-          ``,
-          `📅 Nächster möglicher Termin: ${naechsterKuendigungstermin.toLocaleDateString('de-CH')}`,
-          `(Mietsenkung muss mit Herabsetzungsbegehren verlangt werden)`
+          `❌ KRITISCH: Zinssenkung nicht berücksichtigt!`,
+          `💰 Jährliche Ersparnis: CHF ${(differenz * 12).toFixed(2)}`,
+          `Neue Miete: CHF ${aktuelleSollMiete.toFixed(2)} statt CHF ${aktuelleAnpassung.miete.toFixed(2)}`
         );
         
         sollIstVergleiche.push({

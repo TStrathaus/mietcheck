@@ -10,6 +10,7 @@ import {
   berechneMiete,
   formatSollIstVergleich,
   REFERENZZINSSATZ_HISTORIE,
+  DetailValidation,
 } from '@/lib/miet-calculator-extended';
 
 interface MietHistorieExtendedProps {
@@ -19,6 +20,7 @@ interface MietHistorieExtendedProps {
     referenzzinssatz: number;
   };
   onHistorieChange: (historie: MietHistorieType) => void;
+  onValidationChange?: (validation: DetailValidation) => void;
 }
 
 interface AnalyzeResult {
@@ -35,6 +37,7 @@ interface AnalyzeResult {
 export default function MietHistorieExtended({
   vertragsbeginn,
   onHistorieChange,
+  onValidationChange,
 }: MietHistorieExtendedProps) {
   const [anpassungen, setAnpassungen] = useState<MietAnpassung[]>([]);
   const [showManualForm, setShowManualForm] = useState(false);
@@ -210,6 +213,11 @@ export default function MietHistorieExtended({
 
   // Detaillierte Validierung
   const validation = validateMietHistorieDetailed(historie);
+
+  // Notify parent component of validation changes
+  if (onValidationChange) {
+    onValidationChange(validation);
+  }
 
   return (
     <div className="space-y-6">
@@ -606,11 +614,18 @@ export default function MietHistorieExtended({
       {validation.kritisch.length > 0 && (
         <div className="bg-red-50 border-2 border-red-500 rounded-lg p-6">
           <div className="space-y-2">
-            {validation.kritisch.map((line, i) => (
-              <p key={i} className={`${i === 0 ? 'text-lg font-bold text-red-900' : 'text-sm text-red-800'}`}>
-                {line}
-              </p>
-            ))}
+            {validation.kritisch.map((line, i) => {
+              if (i === 0) {
+                // First line - KRITISCH message
+                return <p key={i} className="text-2xl font-bold text-red-900">{line}</p>;
+              } else if (i === 1 && line.includes('Jährliche Ersparnis')) {
+                // Second line - Yearly savings
+                return <p key={i} className="text-3xl font-extrabold text-red-900">{line}</p>;
+              } else {
+                // Other lines
+                return <p key={i} className="text-sm text-red-800">{line}</p>;
+              }
+            })}
           </div>
         </div>
       )}

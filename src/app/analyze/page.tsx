@@ -21,6 +21,7 @@ export default function AnalyzePage() {
 
   const [contractData, setContractData] = useState<ContractData | null>(null);
   const [mietHistorie, setMietHistorie] = useState<MietHistorie | null>(null);
+  const [historieResult, setHistorieResult] = useState<DetailValidation | null>(null);
   const [showHistorie, setShowHistorie] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -311,55 +312,77 @@ export default function AnalyzePage() {
           )}
 
           {/* Results */}
-          {result && (
-            <div className="mt-8 bg-green-50 border-2 border-green-500 rounded-lg p-6">
-              <h3 className="text-2xl font-bold text-green-900 mb-4">
-                🎉 Ihr Einsparungspotential
-              </h3>
+          {result && (() => {
+            // Use historieResult if available and has savings, otherwise use result
+            const displayResult = (showHistorie && historieResult?.einsparungsPotential)
+              ? {
+                  currentRent: result.currentRent,
+                  newRent: result.currentRent - historieResult.einsparungsPotential.monatlich,
+                  monthlyReduction: historieResult.einsparungsPotential.monatlich,
+                  yearlySavings: historieResult.einsparungsPotential.jaehrlich,
+                }
+              : result;
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Aktuelle Miete</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    CHF {result.currentRent.toFixed(2)}
-                  </p>
+            return (
+              <div className="mt-8 bg-green-50 border-2 border-green-500 rounded-lg p-6">
+                <h3 className="text-2xl font-bold text-green-900 mb-4">
+                  🎉 Ihr Einsparungspotential
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-sm text-gray-600">Aktuelle Miete</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      CHF {displayResult.currentRent.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-sm text-gray-600">Neue Miete</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      CHF {displayResult.newRent.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-sm text-gray-600">Monatliche Reduktion</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      CHF {displayResult.monthlyReduction.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-sm text-gray-600">Jährliche Einsparung</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      CHF {displayResult.yearlySavings.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Neue Miete</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    CHF {result.newRent.toFixed(2)}
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Monatliche Reduktion</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    CHF {result.monthlyReduction.toFixed(2)}
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Jährliche Einsparung</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    CHF {result.yearlySavings.toFixed(2)}
-                  </p>
+                <div className="mt-6 text-center">
+                  {displayResult.yearlySavings > 0 ? (
+                    <>
+                      <button
+                        onClick={handleNavigateToGenerate}
+                        className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors"
+                      >
+                        📄 Weiter zu Service 2: Brief generieren
+                      </button>
+                      <p className="text-sm text-gray-600 mt-2">
+                        💡 Alle Daten werden automatisch übernommen
+                      </p>
+                    </>
+                  ) : (
+                    <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                      <p className="text-gray-700">
+                        ℹ️ Aktuell keine Herabsetzung möglich. Der Referenzzins ist seit Ihrem Vertrag nicht gesunken.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleNavigateToGenerate}
-                  className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors"
-                >
-                  📄 Weiter zu Service 2: Brief generieren
-                </button>
-                <p className="text-sm text-gray-600 mt-2">
-                  💡 Alle Daten werden automatisch übernommen
-                </p>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* MietHistorie Section */}
