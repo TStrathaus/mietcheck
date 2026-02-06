@@ -12,39 +12,12 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-            borderRadius: '8px',
-            padding: '12px 16px',
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#10B981',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            duration: 5000,
-            iconTheme: {
-              primary: '#EF4444',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
       {children}
       <Toaster
         position="top-center"
         reverseOrder={false}
         gutter={8}
         toastOptions={{
-          // Default options for all toasts
           duration: 4000,
           style: {
             background: '#363636',
@@ -52,7 +25,6 @@ export function Providers({ children }: ProvidersProps) {
             padding: '16px',
             borderRadius: '8px',
           },
-          // Custom options for specific types
           success: {
             duration: 3000,
             style: {
